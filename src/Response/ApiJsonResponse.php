@@ -2,9 +2,10 @@
 
 namespace App\Response;
 
-class ApiJsonResponse extends \Symfony\Component\HttpFoundation\Response
-{
+use Symfony\Component\HttpFoundation\JsonResponse;
 
+class ApiJsonResponse extends JsonResponse
+{
 	//https://labs.omniti.com/labs/jsend
 	public function __construct($data = null, int $statusCode = 200, array $headers = array(), bool $json = false)
 	{

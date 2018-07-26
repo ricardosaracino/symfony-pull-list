@@ -11,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Product
 {
-	## todo series ManyToOne? , by ManyToMany
+    ## todo series ManyToOne? , by ManyToMany
 
     /**
      * @ORM\Id()
@@ -31,16 +31,16 @@ class Product
     private $description;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $details;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $UPC;
 
-	/**
+    /**
      * @ORM\Column(type="float", nullable=true)
      */
     private $customerCost;
@@ -49,6 +49,21 @@ class Product
      * @ORM\Column(type="float", nullable=true)
      */
     private $vendorCost;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $releasedAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $updatedAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\ProductType", inversedBy="products")
@@ -67,28 +82,14 @@ class Product
      */
     private $genres;
 
-	/**
-	 * @ORM\Column(type="datetime", nullable=true)
-	 */
-	private $releasedAt;
 
-	/**
-	 * @ORM\Column(type="datetime")
-	 */
-	private $createdAt;
-
-	/**
-	 * @ORM\Column(type="datetime")
-	 */
-	private $updatedAt;
- private $__EXTRA__LINE;
- /**
-  * @ORM\ManyToMany(targetEntity="App\Entity\Creator", inversedBy="products")
-  */
- private $creators;
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Creator", inversedBy="products")
+     */
+    private $creators;
 
 
-	public function __construct()
+    public function __construct()
     {
         $this->genres = new ArrayCollection();
         $this->creators = new ArrayCollection();
@@ -172,44 +173,44 @@ class Product
         return $this;
     }
 
-	public function getReleasedAt(): ?\DateTimeInterface
-	{
-		return $this->releasedAt;
-	}
+    public function getReleasedAt(): ?\DateTimeInterface
+    {
+        return $this->releasedAt;
+    }
 
-	public function setReleasedAt(\DateTimeInterface $releasedAt): self
-	{
-		$this->releasedAt = $releasedAt;
+    public function setReleasedAt(\DateTimeInterface $releasedAt): self
+    {
+        $this->releasedAt = $releasedAt;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getCreatedAt(): ?\DateTimeInterface
-	{
-		return $this->createdAt;
-	}
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
 
-	public function setCreatedAt(\DateTimeInterface $createdAt): self
-	{
-		$this->createdAt = $createdAt;
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    {
+        $this->createdAt = $createdAt;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function getUpdatedAt(): ?\DateTimeInterface
-	{
-		return $this->updatedAt;
-	}
+    public function getUpdatedAt(): ?\DateTimeInterface
+    {
+        return $this->updatedAt;
+    }
 
-	public function setUpdatedAt(\DateTimeInterface $updatedAt): self
-	{
-		$this->updatedAt = $updatedAt;
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    {
+        $this->updatedAt = $updatedAt;
 
-		return $this;
-	}
+        return $this;
+    }
 
 
-	public function getProductType(): ?ProductType
+    public function getProductType(): ?ProductType
     {
         return $this->productType;
     }
