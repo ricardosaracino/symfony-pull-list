@@ -7,7 +7,12 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            anonymous: true
+            anonymous: ~
+            logout: ~
+
+            guard:
+                authenticators:
+                    - App\Security\UserAuthenticator
 
             # activate different ways to authenticate
 
@@ -21,4 +26,4 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+         - { path: ^/api/comics, roles: ROLE_USER }
