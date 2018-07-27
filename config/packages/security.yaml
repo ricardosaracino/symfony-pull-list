@@ -13,19 +13,18 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         api:
-            anonymous: ~
-            pattern: ^/
-            provider: our_db_provider
+            #anonymous: ~
+            #pattern: ^/
+            #provider: our_db_provider
             #http_basic: ~
 
 
-#                    main:
-#                        anonymous: ~
-#                        logout: ~
-#
-#                        guard:
-#                            authenticators:
-#                                - App\Security\UserAuthenticator
+                        anonymous: ~
+                        logout: ~
+
+                        guard:
+                            authenticators:
+                                - App\Security\UserAuthenticator
 
             # activate different ways to authenticate
 

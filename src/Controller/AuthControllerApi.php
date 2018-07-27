@@ -7,6 +7,7 @@ use App\ObjectNormalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
+use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use App\Security\UserChecker;
 use App\Security\UserProvider;
@@ -20,7 +21,7 @@ use Symfony\Component\Routing\Annotation\Route;
 
 
 /**
- * @Route("/api/auth")
+ * @Route("/api/security")
  */
 class AuthControllerApi extends BaseControllerApi
 {
@@ -59,35 +60,39 @@ class AuthControllerApi extends BaseControllerApi
         }
     }
 
+
     /**
-     * @Route("/authenticate/", name="api_auth_authenticate", methods="GET")
+     * @Route("/login", name="api_security_login", methods="POST")
      *
      * @param UserRepository $userRepository
      * @return ApiJsonResponse
      *
      * @see https://symfony.com/doc/current/components/security/authentication.html#the-password-encoder-factory
      */
-    public function authenticate(UserRepository $userRepository): ApiJsonResponse
+    public function login(UserRepository $userRepository): ApiJsonResponse
     {
         try {
 
             $user = $userRepository->findOneBy(['username' => 'admin']);
 
 
-            $defaultEncoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
+            $encoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
 
-            $encoders = [User::class => $defaultEncoder];
-
-            $encoderFactory = new EncoderFactory($encoders);
-
-
-            $daoProvider = new DaoAuthenticationProvider(new UserProvider(), new UserChecker(), 'secured_area', $encoderFactory);
-
-            $daoProvider->authenticate(new UsernamePasswordToken($user, 'admin', 'secured_area'));
+            if (!$encoder->isPasswordValid($user->getPassword(), 'admin', $user->getSalt())) {
+                return new FailureJsonResponse('Username or Password not valid.');
+            }
 
 
+            $token = new UsernamePasswordToken($user, null, 'api', $user->getRoles());
 
+            //Handle getting or creating the user entity likely with a posted form
+            // The third parameter "main" can change according to the name of your firewall in security.yml
 
+            $this->get('security.token_storage')->setToken($token);
+
+            // If the firewall name is not main, then the set value would be instead:
+            // $this->get('session')->set('_security_XXXFIREWALLNAMEXXX', serialize($token));
+            $this->get('session')->set('_security_api', serialize($token));
 
 
             return new SuccessJsonResponse($user, new UserNormalizer());
