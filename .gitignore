@@ -16,3 +16,6 @@
 ###> symfony/web-server-bundle ###
 /.web-server-pid
 ###< symfony/web-server-bundle ###
+/public/xdebug_remote.log
+/public/php_errors.log
+/symfony-pull-list.iml

@@ -23,7 +23,7 @@ class ComicControllerApi extends BaseControllerApi
 	public function index(ProductRepository $comicRepository): ApiJsonResponse
 	{
 		try {
-			return new SuccessJsonResponse($comicRepository->findAll(), new ProductNormalizer());
+			return new SuccessJsonResponse(['comics' => $comicRepository->findAll()], new ProductNormalizer());
 		} catch (\Exception $exception) {
 
 			$this->logger->error($exception->getMessage(),['route_name' => 'api_comics']);

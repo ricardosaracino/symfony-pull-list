@@ -1,29 +1,40 @@
 security:
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
+
     providers:
-        in_memory: { memory: ~ }
+        our_db_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+                # if you're using multiple entity managers
+                # manager_name: customer
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
     firewalls:
         dev:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
-        main:
-            anonymous: ~
-            logout: ~
+        api:
+
+            anonymous: false
+
+            logout:
+                path: /api/security/logout
+                success_handler: App\Security\LogoutSuccessHandler
+
+            access_denied_handler: App\Security\AccessDeniedHandler
+
+            user_checker: App\Security\UserChecker
 
             guard:
                 authenticators:
-                    - App\Security\UserAuthenticator
+                    - App\Security\ApiLoginAuthenticator
 
-            # activate different ways to authenticate
+                entry_point: App\Security\ApiLoginAuthenticator
 
-            # http_basic: true
-            # https://symfony.com/doc/current/security.html#a-configuring-how-your-users-will-authenticate
-
-            # form_login: true
-            # https://symfony.com/doc/current/security/form_login_setup.html
-
-    # Easy way to control access for large sections of your site
-    # Note: Only the *first* access control that matches will be used
+    # Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-         - { path: ^/api/comics, roles: ROLE_USER }
+        - { path: ^/api/comics, roles: ROLE_ADMIN }
