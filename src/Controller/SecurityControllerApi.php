@@ -4,21 +4,13 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\ObjectNormalizer\UserNormalizer;
-use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
-use App\Security\UserChecker;
-use App\Security\UserProvider;
-use Symfony\Component\Security\Core\Authentication\Provider\DaoAuthenticationProvider;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 
-
 use Symfony\Component\Routing\Annotation\Route;
-
 
 /**
  * @Route("/api/security")
@@ -70,8 +62,7 @@ class SecurityControllerApi extends BaseControllerApi
 
             $token = $this->get('security.token_storage')->getToken();
 
-            if($token->isAuthenticated())
-            {
+            if ($token->isAuthenticated()) {
                 // "anon." is authenticated when firewalls: api: anonymous: ~
                 return new SuccessJsonResponse($token->getUser(), new UserNormalizer());
             }

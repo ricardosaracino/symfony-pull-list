@@ -19,7 +19,8 @@ security:
             security: false
         api:
 
-            anonymous: false
+            # Access-Control-Allow-Origin in \App\Response\ApiJsonResponse
+            anonymous: ~
 
             logout:
                 path: /api/security/logout
@@ -37,4 +38,4 @@ security:
 
     # Only the *first* access control that matches will be used
     access_control:
-        - { path: ^/api/comics, roles: ROLE_ADMIN }
+        # - { path: ^/api/comics, roles: ROLE_ADMIN }

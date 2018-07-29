@@ -19,7 +19,7 @@ class UserChecker implements UserCheckerInterface
             return;
         }
 
-        if ($user->getIsActive()) {
+        if (!$user->getIsActive()) {
             # Calls \App\Security\ApiLoginAuthenticator::onAuthenticationFailure
             throw new AuthenticationException('User Not Active');
         }
