@@ -6,8 +6,11 @@ use App\ObjectNormalizer\ProductNormalizer;
 use App\Repository\ProductRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
+use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route("/api/comics")
@@ -23,7 +26,14 @@ class ComicControllerApi extends BaseControllerApi
 	public function index(ProductRepository $comicRepository): ApiJsonResponse
 	{
 		try {
-			return new SuccessJsonResponse(['comics' => $comicRepository->findAll()], new ProductNormalizer());
+
+            $productNormalizer = new ProductNormalizer();
+
+		    $serializer = new Serializer([new DateTimeNormalizer(), $productNormalizer]);
+
+            $results = $serializer->normalize($comicRepository->findAll());
+
+            return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => count($results), 'count' => count($results), 'results' => $results]);
 		} catch (\Exception $exception) {
 
 			$this->logger->error($exception->getMessage(),['route_name' => 'api_comics']);

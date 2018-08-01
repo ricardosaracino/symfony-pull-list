@@ -10,6 +10,6 @@ class ErrorJsonResponse extends ApiJsonResponse
 
     public function __construct(string $message = null, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
-        parent::__construct(['status' => 'fail', 'message' => $message], $statusCode);
+        parent::__construct(['status' => 'error', 'code' => $statusCode, 'message' => $message], $statusCode);
     }
 }
