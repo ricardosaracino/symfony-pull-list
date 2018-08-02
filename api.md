@@ -37,7 +37,7 @@
 
 results are the "comics" and they are always returned as an array even for a single item
 
-*https://gateway.marvel.com:443/**v1**/public/comics?title=cable&apikey=39754936249867122be92159703640da*
+*https://gateway.marvel.com:443/v1/public/comics?title=cable&apikey=39754936249867122be92159703640da*
 
 ```
 {
