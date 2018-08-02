@@ -67,13 +67,13 @@ results are the "comics" and they are always returned as an array even for a sin
  
 Status | Reason | Trigger
 ------------ | ------------- | -------------
-401 | Authentication Required | ApiLoginAuthenticator::start HTTP_UNAUTHORIZED
-401 | Invalid Password | ApiLoginAuthenticator::onAuthenticationFailure HTTP_UNAUTHORIZED
+401 | Authentication Required | ApiLoginAuthenticator::start
+401 | Invalid Password | ApiLoginAuthenticator::onAuthenticationFailure
 403 | ... | 
-409 | Limit greater than 100.
-409 | Limit invalid or below 1.
-409 | Invalid or unrecognized parameter.
-409 | Empty parameter.
-409 | Invalid or unrecognized ordering parameter.
-409 | Too many values sent to a multi-value list filter.
-409 | Invalid value passed to filter.
+409 | Limit greater than 100
+409 | Limit invalid or below 1
+409 | Invalid or unrecognized parameter
+409 | Empty parameter
+409 | Invalid or unrecognized ordering parameter
+409 | Too many values sent to a multi-value list filter
+409 | Invalid value passed to filter
