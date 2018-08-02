@@ -1,5 +1,5 @@
 
-_JSend_
+# JSend
 
 *https://labs.omniti.com/labs/jsend*
 
@@ -31,7 +31,7 @@ _JSend_
 }
 ```
 
-_Marvel API_
+# Marvel API
 
 *https://developer.marvel.com/docs*
 
