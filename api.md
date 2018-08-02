@@ -66,7 +66,7 @@ results are the "comics" and they are always returned as an array even for a sin
  
  
 Status | Reason
- 
+------------ | ------------- 
 409 | Limit greater than 100.
 409 | Limit invalid or below 1.
 409 | Invalid or unrecognized parameter.
