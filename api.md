@@ -63,7 +63,7 @@ results are the "comics" and they are always returned as an array even for a sin
         ....
  ```
  
- 
+# Error Codes & Messages
  
 Status | Reason | Trigger
 ------------ | ------------- | -------------
