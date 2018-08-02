@@ -1,3 +1,6 @@
+
+#JSend#
+
 *https://labs.omniti.com/labs/jsend*
 
 ```
@@ -27,6 +30,8 @@
     "message" : "Unable to communicate with database"
 }
 ```
+
+#Marvel API#
 
 *https://developer.marvel.com/docs*
 
