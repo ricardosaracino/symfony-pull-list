@@ -3,7 +3,7 @@
 
 namespace App\Security;
 
-use App\Response\FailureJsonResponse;
+use App\Response\ErrorJsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -102,7 +102,7 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
      */
     public function onAuthenticationFailure(Request $request, AuthenticationException $authException)
     {
-        return new FailureJsonResponse(['message' => $authException->getMessage()], Response::HTTP_FORBIDDEN);
+        return new ErrorJsonResponse($authException->getMessage(), Response::HTTP_FORBIDDEN);
     }
 
     /**
@@ -114,7 +114,7 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null)
     {
-        return new FailureJsonResponse(['message' => 'Authentication Required'], Response::HTTP_UNAUTHORIZED);
+        return new ErrorJsonResponse('Authentication Required', Response::HTTP_UNAUTHORIZED);
     }
 
     /**

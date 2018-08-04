@@ -8,6 +8,7 @@ use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 
 use Symfony\Component\Routing\Annotation\Route;
@@ -67,7 +68,7 @@ class SecurityControllerApi extends BaseControllerApi
                 return new SuccessJsonResponse($token->getUser(), new UserNormalizer());
             }
 
-            return new FailureJsonResponse(['message' => 'Authentication Required']);
+            return new ErrorJsonResponse('Authentication Required', Response::HTTP_UNAUTHORIZED);
 
         } catch (\Exception $exception) {
 

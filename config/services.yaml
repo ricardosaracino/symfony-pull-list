@@ -21,6 +21,7 @@ services:
         resource: '../src/*'
         exclude: '../src/{DependencyInjection,Entity,Migrations,Tests,Kernel.php}'
 
+
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
     App\Controller\:
@@ -29,3 +30,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    app.cors_listener:
+        class:      App\Listener\CorsListener
+        tags:
+           - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
