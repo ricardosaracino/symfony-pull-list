@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\ObjectNormalizer\ProductNormalizer;
+use App\Repository\CompanyRepository;
 use App\Repository\ProductRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
@@ -12,31 +13,31 @@ use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 /**
- * @Route("/api/comics")
+ * @Route("/api/company")
  */
-class ComicControllerApi extends BaseControllerApi
+class CompanyControllerApi extends BaseControllerApi
 {
     /**
-     * @Route("/", name="api_comics", methods="GET")
+     * @Route("/", name="api_company", methods="GET")
      *
-     * @param ProductRepository $comicRepository
+     * @param CompanyRepository $repository
      * @return ApiJsonResponse
      */
-    public function index(ProductRepository $comicRepository): ApiJsonResponse
+    public function getCompanies(CompanyRepository $repository): ApiJsonResponse
     {
         try {
             $productNormalizer = new ProductNormalizer();
 
             $serializer = new Serializer([new DateTimeNormalizer(), $productNormalizer]);
 
-            $results = $serializer->normalize($comicRepository->findAll());
+            $results = $serializer->normalize($repository->findAll());
 
             return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => count($results), 'count' => count($results), 'results' => $results]);
         } catch (\Exception $exception) {
 
-            $this->logger->error($exception->getMessage(), ['route_name' => 'api_comics']);
+            $this->logger->error($exception->getMessage(), ['route_name' => 'api_company']);
 
-            return new ErrorJsonResponse('Error in api_comics');
+            return new ErrorJsonResponse('Error in api_company');
         }
     }
 }

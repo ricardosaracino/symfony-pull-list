@@ -15,5 +15,6 @@ class CorsListener
         $responseHeaders->set('Access-Control-Allow-Credentials', 'true');
         $responseHeaders->set('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, PATCH, OPTIONS');
         $responseHeaders->set('Access-Control-Allow-Headers', 'origin, content-type, accept');
+        $responseHeaders->set('Access-Control-Expose-Headers', 'x-chromelogger-data'); ## on in dev mode
     }
 }

@@ -41,6 +41,11 @@ class Product
     private $UPC;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $imageUrl;
+
+    /**
      * @ORM\Column(type="float", nullable=true)
      */
     private $customerCost;
@@ -148,6 +153,17 @@ class Product
         return $this;
     }
 
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(string $imageUrl): self
+    {
+        $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
 
     public function getCustomerCost(): ?float
     {
