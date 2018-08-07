@@ -3,6 +3,9 @@ namespace App\Listener;
 
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 
+/**
+ * https://github.com/nelmio/NelmioCorsBundle/blob/master/EventListener/CorsListener.php
+ */
 class CorsListener
 {
     public function onKernelResponse(FilterResponseEvent $event)
