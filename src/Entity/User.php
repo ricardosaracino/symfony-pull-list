@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -40,10 +42,17 @@ class User implements UserInterface, \Serializable
      */
     private $isActive;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserPurchase", mappedBy="user")
+     */
+    private $userPurchases;
 
     public function __construct()
     {
         $this->isActive = true;
+
+        $this->userPurchases = new ArrayCollection();
+
         // may not be needed, see section on salt below
         // $this->salt = md5(uniqid('', true));
     }
@@ -138,6 +147,37 @@ class User implements UserInterface, \Serializable
     public function setIsActive(bool $isActive): self
     {
         $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserPurchase[]
+     */
+    public function getUserPurchases(): Collection
+    {
+        return $this->userPurchases;
+    }
+
+    public function addUserPurchase(UserPurchase $userPurchase): self
+    {
+        if (!$this->userPurchases->contains($userPurchase)) {
+            $this->userPurchases[] = $userPurchase;
+            $userPurchase->setUsers($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserPurchase(UserPurchase $userPurchase): self
+    {
+        if ($this->userPurchases->contains($userPurchase)) {
+            $this->userPurchases->removeElement($userPurchase);
+            // set the owning side to null (unless already changed)
+            if ($userPurchase->getUsers() === $this) {
+                $userPurchase->setUsers(null);
+            }
+        }
 
         return $this;
     }

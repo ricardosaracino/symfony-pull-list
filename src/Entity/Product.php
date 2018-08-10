@@ -48,12 +48,12 @@ class Product
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $customerCost;
+    private $customerPrice;
 
     /**
      * @ORM\Column(type="float", nullable=true)
      */
-    private $vendorCost;
+    private $vendorPrice;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
@@ -86,7 +86,6 @@ class Product
      * @ORM\ManyToMany(targetEntity="App\Entity\Genre", inversedBy="products")
      */
     private $genres;
-
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Creator", inversedBy="products")
@@ -165,26 +164,26 @@ class Product
         return $this;
     }
 
-    public function getCustomerCost(): ?float
+    public function getCustomerPrice(): ?float
     {
-        return $this->customerCost;
+        return $this->customerPrice;
     }
 
-    public function setCustomerCost(?float $customerCost): self
+    public function setCustomerPrice(?float $customerPrice): self
     {
-        $this->customerCost = $customerCost;
+        $this->customerPrice = $customerPrice;
 
         return $this;
     }
 
-    public function getVendorCost(): ?float
+    public function getVendorPrice(): ?float
     {
-        return $this->vendorCost;
+        return $this->vendorPrice;
     }
 
-    public function setVendorCost(?float $vendorCost): self
+    public function setVendorPrice(?float $vendorPrice): self
     {
-        $this->vendorCost = $vendorCost;
+        $this->vendorPrice = $vendorPrice;
 
         return $this;
     }

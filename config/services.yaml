@@ -31,7 +31,15 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
+    doctrine.apcu.cache:
+          class: Doctrine\Common\Cache\ApcuCache
+
+    validator.mapping.cache:
+          class: Symfony\Component\Validator\Mapping\Cache\DoctrineCache
+          arguments: ['@doctrine.apcu.cache']
+
+
     app.cors_listener:
-        class:      App\Listener\CorsListener
+        class: App\Listener\CorsListener
         tags:
            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
