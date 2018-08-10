@@ -63,27 +63,43 @@ class ProductControllerApi extends BaseControllerApi
      * @param ProductRepository $repository
      * @return ApiJsonResponse
      */
-    public function getProduct(Request $request, ProductRepository $repository): ApiJsonResponse
+    public function getCachedProduct(Request $request, ProductRepository $repository,  UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
-            $criteria = Criteria::create();
+            $cachedResults = $this->get('cache.app')->getItem('results_products_' . $request->get('id'));
 
-            if ($id = $request->get('id')) {
-                $criteria->where(Criteria::expr()->eq('id', $id));
+            if ($cachedResults->isHit()) {
+                $results = $cachedResults->get();
             } else {
-                $criteria->where(Criteria::expr()->eq('id', 0));
+
+                $criteria = Criteria::create();
+
+                if ($id = $request->get('id')) {
+                    $criteria->where(Criteria::expr()->eq('id', $id));
+                } else {
+                    $criteria->where(Criteria::expr()->eq('id', 0));
+                }
+
+                $collection = $repository->matching($criteria);
+
+                $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
+
+                $results = $serializer->normalize($collection);
+
+                ## Cache result
+
+                $cachedResults->set($results);
+
+                $this->get('cache.app')->save($cachedResults);
             }
 
-            $collection = $repository->matching($criteria);
+            ## todo refactor to use results
+            ##$userPurchasesResults = $this->getUserPurchasesResults($collection, $purchaseRepository);
 
-            $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
+            return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
-            $results = $serializer->normalize($collection);
-
-            return new SuccessJsonResponse(['offset' => $collection->count(), 'limit' => $collection->count(),
-
-                'total' => $collection->count(), 'count' => $collection->count(), 'results' => $results]);
+                'total' => count($results), 'count' => count($results), 'results' => $results]);
 
         } catch (\Exception $exception) {
 
