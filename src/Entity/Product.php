@@ -45,20 +45,36 @@ class Product
      */
     private $imageUrl;
 
+
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
+     */
+    private $vendorPrice;
+
+    /**
+     * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $customerPrice;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $vendorPrice;
+    private $customerDiscount;
+
+    /**
+     * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
+     */
+    private $customerDiscountPrice;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $releasedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $deadlineAt;
 
     /**
      * @ORM\Column(type="datetime")
@@ -164,26 +180,50 @@ class Product
         return $this;
     }
 
+    public function getVendorPrice(): ?float
+    {
+        return $this->vendorPrice;
+    }
+
+    public function setVendorPrice(?string $vendorPrice): self
+    {
+        $this->vendorPrice = $vendorPrice;
+
+        return $this;
+    }
+
     public function getCustomerPrice(): ?float
     {
         return $this->customerPrice;
     }
 
-    public function setCustomerPrice(?float $customerPrice): self
+    public function setCustomerPrice(?string $customerPrice): self
     {
         $this->customerPrice = $customerPrice;
 
         return $this;
     }
 
-    public function getVendorPrice(): ?float
+    public function getCustomerDiscountPrice(): ?float
     {
-        return $this->vendorPrice;
+        return $this->customerDiscountPrice;
     }
 
-    public function setVendorPrice(?float $vendorPrice): self
+    public function setCustomerDiscountPrice(?string $customerDiscountPrice): self
     {
-        $this->vendorPrice = $vendorPrice;
+        $this->customerDiscountPrice = $customerDiscountPrice;
+
+        return $this;
+    }
+
+    public function getCustomerDiscount(): ?string
+    {
+        return $this->customerDiscount;
+    }
+
+    public function setCustomerDiscount(?string $customerDiscount): self
+    {
+        $this->customerDiscount = $customerDiscount;
 
         return $this;
     }
@@ -196,6 +236,18 @@ class Product
     public function setReleasedAt(\DateTimeInterface $releasedAt): self
     {
         $this->releasedAt = $releasedAt;
+
+        return $this;
+    }
+
+    public function getDeadlineAt(): ?\DateTimeInterface
+    {
+        return $this->deadlineAt;
+    }
+
+    public function setDeadlineAt(?\DateTimeInterface $deadlineAt): self
+    {
+        $this->deadlineAt = $deadlineAt;
 
         return $this;
     }

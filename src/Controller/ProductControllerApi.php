@@ -9,7 +9,6 @@ use App\Repository\UserPurchaseRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\SuccessJsonResponse;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,22 +20,30 @@ use Symfony\Component\Serializer\Serializer;
  */
 class ProductControllerApi extends BaseControllerApi
 {
-    /**
-     * @param Collection $products
-     * @param UserPurchaseRepository $purchaseRepository
-     * @return array
-     */
-    private function getUserPurchasesResults(Collection $products, UserPurchaseRepository $purchaseRepository)
-    {
-        if ($products->count()) {
+    const CACHE_PREFIX = 'results.product.';
 
-            $productIds = $products->map(function ($o) {
-                return $o->getId();
-            })->toArray();
+    /**
+     * @param array|null $productResults
+     * @param UserPurchaseRepository $purchaseRepository
+     */
+    private function addUserPurchasesResults(array & $productResults = null, UserPurchaseRepository $purchaseRepository): void
+    {
+        if (!empty($productResults)) {
+
+            $productIds = array_map(function ($o) {
+                return $o['id'];
+            }, $productResults);
 
             $criteria = Criteria::create();
 
-            $criteria->where(Criteria::expr()->in('product', $productIds));
+            $expr = Criteria::expr();
+
+            $criteria->where(
+                $expr->andX(
+                    $expr->in('product', $productIds),
+                    $expr->in('user', [1])
+                )
+            );
 
             $userPurchaseNormalizer = new EntityNormalize();
 
@@ -50,10 +57,22 @@ class ProductControllerApi extends BaseControllerApi
 
             $userPurchases = $purchaseRepository->matching($criteria);
 
-            return $serializer->normalize($userPurchases);
-        }
+            $userPurchaseResults = $serializer->normalize($userPurchases);
 
-        return [];
+            ## im sure this can be done better
+            foreach ($productResults as & $productResult) {
+
+                if(!array_key_exists('userPurchases', $productResult)) {
+                    $productResult['userPurchases'] = [];
+                }
+
+                foreach ($userPurchaseResults as $userPurchaseResult) {
+                    if ($userPurchaseResult['product']['id'] == $productResult['id']) {
+                        $productResult['userPurchases'][] = $userPurchaseResult;
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -63,11 +82,13 @@ class ProductControllerApi extends BaseControllerApi
      * @param ProductRepository $repository
      * @return ApiJsonResponse
      */
-    public function getCachedProduct(Request $request, ProductRepository $repository,  UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getCachedProduct(Request $request, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
-            $cachedResults = $this->get('cache.app')->getItem('results_products_' . $request->get('id'));
+            $this->get('cache.app')->deleteItem(self::CACHE_PREFIX . $request->get('id'));
+
+            $cachedResults = $this->get('cache.app')->getItem(self::CACHE_PREFIX . $request->get('id'));
 
             if ($cachedResults->isHit()) {
                 $results = $cachedResults->get();
@@ -94,8 +115,8 @@ class ProductControllerApi extends BaseControllerApi
                 $this->get('cache.app')->save($cachedResults);
             }
 
-            ## todo refactor to use results
-            ##$userPurchasesResults = $this->getUserPurchasesResults($collection, $purchaseRepository);
+            ## add un-cached results
+            $this->addUserPurchasesResults($results, $purchaseRepository);
 
             return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
@@ -121,52 +142,66 @@ class ProductControllerApi extends BaseControllerApi
     {
         try {
 
-            $criteria = Criteria::create();
+            $this->get('cache.app')->deleteItem(self::CACHE_PREFIX . base64_encode(md5($request->getQueryString())));
 
-            if ($offset = $request->get('offset')) {
-                $criteria->setFirstResult($offset);
+            $cachedResults = $this->get('cache.app')->getItem(self::CACHE_PREFIX . base64_encode(md5($request->getQueryString())));
+
+            if (false || $cachedResults->isHit()) {
+                $results = $cachedResults->get();
+            } else {
+
+                $criteria = Criteria::create();
+
+                if ($offset = $request->get('offset')) {
+                    $criteria->setFirstResult($offset);
+                }
+
+                if ($limit = $request->get('limit')) {
+                    $criteria->setMaxResults($limit);
+                }
+
+                if ($orderBy = $request->get('orderBy')) {
+                    // TODO $criteria->orderBy([$orderBy]);
+                }
+
+                if ($dateRange = $request->get('dateRange')) {
+
+                    list($start, $end) = explode(',', $dateRange);
+
+                    $expr = Criteria::expr();
+                    $criteria->where(
+                        $expr->andX(
+                            $expr->gte('releasedAt', new \DateTime($start)),
+                            $expr->lte('releasedAt', new \DateTime($end))
+                        )
+                    );
+                }
+
+                $collection = $productRepository->matching($criteria);
+
+                $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
+
+                $results = $serializer->normalize($collection);
+
+                ## Cache result
+
+                $cachedResults->set($results);
+
+                $this->get('cache.app')->save($cachedResults);
             }
 
-            if ($limit = $request->get('limit')) {
-                $criteria->setMaxResults($limit);
-            }
+            ## add un-cached results
+            $this->addUserPurchasesResults($results, $purchaseRepository);
 
-            if ($orderBy = $request->get('orderBy')) {
-                // TODO $criteria->orderBy([$orderBy]);
-            }
+            return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
-            if ($dateRange = $request->get('dateRange')) {
-
-                list($start, $end) = explode(',', $dateRange);
-
-                $expr = Criteria::expr();
-                $criteria->where(
-                    $expr->andX(
-                        $expr->gte('releasedAt', new \DateTime($start)),
-                        $expr->lte('releasedAt', new \DateTime($end))
-                    )
-                );
-            }
-
-            $collection = $productRepository->matching($criteria);
-
-            $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
-
-            $results = $serializer->normalize($collection);
-
-            $userPurchasesResults = $this->getUserPurchasesResults($collection, $purchaseRepository);
-
-            return new SuccessJsonResponse(['offset' => intval($offset), 'limit' => intval($limit),
-
-                'total' => $collection->count(), 'count' => $collection->count(),
-
-                'results' => $results, 'purchase_results' => $userPurchasesResults]);
+                'total' => count($results), 'count' => count($results), 'results' => $results]);
 
         } catch (\Exception $exception) {
 
             $this->logger->error($exception->getMessage(), ['route_name' => $request->getPathInfo()]);
 
-            return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
+            #return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
 }

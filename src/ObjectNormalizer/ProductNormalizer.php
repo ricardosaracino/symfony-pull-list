@@ -9,6 +9,6 @@ class ProductNormalizer extends EntityNormalize
         parent::__construct($classMetadataFactory, $nameConverter, $propertyAccessor, $propertyTypeExtractor, $classDiscriminatorResolver);
 
         ## TODO
-        $this->setIgnoredAttributes(['products','__initializer__', '__cloner__', '__isInitialized__']);
+        $this->setIgnoredAttributes(['products','__initializer__', '__cloner__', '__isInitialized__', 'createdAt', 'updatedAt']);
     }
 }
