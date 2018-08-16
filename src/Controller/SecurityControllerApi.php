@@ -6,12 +6,12 @@ use App\Entity\User;
 use App\ObjectNormalizer\UserNormalizer;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
-use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
-
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
+use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @Route("/api/security")
@@ -31,7 +31,11 @@ class SecurityControllerApi extends BaseControllerApi
 
             $user = $token->getUser();
 
-            return new SuccessJsonResponse(['user' => $user], new UserNormalizer());
+            $serializer = new Serializer([new DateTimeNormalizer(), new UserNormalizer()]);
+
+            $results = $serializer->normalize($user);
+
+            return new SuccessJsonResponse(['results' => $results]);
 
         } catch (\Exception $exception) {
 
@@ -69,6 +73,37 @@ class SecurityControllerApi extends BaseControllerApi
             }
 
             return new ErrorJsonResponse('Authentication Required', Response::HTTP_UNAUTHORIZED);
+
+        } catch (\Exception $exception) {
+
+            $this->logger->error($exception->getMessage(), ['route_name' => 'api_security_login']);
+
+            return new ErrorJsonResponse('Error in api_security_login');
+        }
+    }
+
+
+    /**
+     * @Route("/signup", name="api_security_signup", methods="GET")
+     */
+    public function signup(\Swift_Mailer $mailer): ApiJsonResponse
+    {
+        try {
+
+            $message = (new \Swift_Message('Verify your email address'))
+                ->setFrom('test@pullist.com')
+                ->setTo('recipient@example.com')
+                ->setBody(
+                    $this->renderView('emails/signup.html.twig', [
+                        'base' => 'http://localhost:4200/email-verification',
+                        'token' => md5('')
+                    ]),
+                    'text/html'
+                );
+
+            $result = $mailer->send($message);
+
+            return new SuccessJsonResponse(['results' => $result]);
 
         } catch (\Exception $exception) {
 
