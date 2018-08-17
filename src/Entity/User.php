@@ -38,6 +38,21 @@ class User implements UserInterface, \Serializable
     private $email;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $emailVerificationToken;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $emailVerifiedAt;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $emailVerificationTokenExpiresAt;
+
+    /**
      * @ORM\Column(type="boolean")
      */
     private $isActive;
@@ -46,6 +61,7 @@ class User implements UserInterface, \Serializable
      * @ORM\OneToMany(targetEntity="App\Entity\UserPurchase", mappedBy="user")
      */
     private $userPurchases;
+
 
     public function __construct()
     {
@@ -139,6 +155,42 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
+    public function getEmailVerificationToken(): ?string
+    {
+        return $this->emailVerificationToken;
+    }
+
+    public function setEmailVerificationToken(?string $emailVerificationToken): self
+    {
+        $this->emailVerificationToken = $emailVerificationToken;
+
+        return $this;
+    }
+
+    public function getEmailVerifiedAt(): ?\DateTimeInterface
+    {
+        return $this->emailVerifiedAt;
+    }
+
+    public function setEmailVerifiedAt(?\DateTimeInterface $emailVerifiedAt): self
+    {
+        $this->emailVerifiedAt = $emailVerifiedAt;
+
+        return $this;
+    }
+
+    public function getEmailVerificationTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->emailVerificationTokenExpiresAt;
+    }
+
+    public function setEmailVerificationTokenExpiresAt(?\DateTimeInterface $emailVerificationTokenExpiresAt): self
+    {
+        $this->emailVerificationTokenExpiresAt = $emailVerificationTokenExpiresAt;
+
+        return $this;
+    }
+
     public function getIsActive(): ?bool
     {
         return $this->isActive;
@@ -181,6 +233,4 @@ class User implements UserInterface, \Serializable
 
         return $this;
     }
-
-
 }
