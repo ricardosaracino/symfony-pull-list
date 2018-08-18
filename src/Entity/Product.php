@@ -45,7 +45,6 @@ class Product
      */
     private $imageUrl;
 
-
     /**
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
@@ -69,12 +68,12 @@ class Product
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $releasedAt;
+    private $preOrderDeadlineAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $deadlineAt;
+    private $releasedAt;
 
     /**
      * @ORM\Column(type="datetime")
@@ -240,14 +239,14 @@ class Product
         return $this;
     }
 
-    public function getDeadlineAt(): ?\DateTimeInterface
+    public function getPreOrderDeadlineAt(): ?\DateTimeInterface
     {
-        return $this->deadlineAt;
+        return $this->preOrderDeadlineAt;
     }
 
-    public function setDeadlineAt(?\DateTimeInterface $deadlineAt): self
+    public function setPreOrderDeadlineAt(?\DateTimeInterface $preOrderDeadlineAt): self
     {
-        $this->deadlineAt = $deadlineAt;
+        $this->preOrderDeadlineAt = $preOrderDeadlineAt;
 
         return $this;
     }

@@ -23,14 +23,9 @@ class User implements UserInterface, \Serializable
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=25, unique=true)
+     * @ORM\Column(type="string", length=255, unique=true, nullable=true)
      */
     private $username;
-
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true)
-     */
-    private $password;
 
     /**
      * @ORM\Column(type="string", length=255, unique=true)
@@ -40,17 +35,27 @@ class User implements UserInterface, \Serializable
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $emailVerificationToken;
+    private $password;
+
+    /**
+     * @ORM\Column(type="string", length=32, nullable=true)
+     */
+    private $salt;
+
+    /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     */
+    private $registrationVerificationToken;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $emailVerifiedAt;
+    private $registrationVerificationTokenExpiresAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private $emailVerificationTokenExpiresAt;
+    private $registrationVerifiedAt;
 
     /**
      * @ORM\Column(type="boolean")
@@ -68,21 +73,13 @@ class User implements UserInterface, \Serializable
         $this->isActive = true;
 
         $this->userPurchases = new ArrayCollection();
-
-        // may not be needed, see section on salt below
-        // $this->salt = md5(uniqid('', true));
     }
 
     ## UserInterface
 
     public function getRoles()
     {
-        return array('ROLE_USER');
-    }
-
-    public function getSalt()
-    {
-        // TODO: Implement getSalt() method.
+        return ['ROLE_USER'];
     }
 
     /**
@@ -114,6 +111,8 @@ class User implements UserInterface, \Serializable
             ) = unserialize($serialized, array('allowed_classes' => false));
     }
 
+    ##
+
     public function getId()
     {
         return $this->id;
@@ -131,18 +130,6 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(?string $password): self
-    {
-        $this->password = $password;
-
-        return $this;
-    }
-
     public function getEmail(): ?string
     {
         return $this->email;
@@ -155,38 +142,62 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
-    public function getEmailVerificationToken(): ?string
+    public function getSalt(): ?string
     {
-        return $this->emailVerificationToken;
+        return $this->salt;
     }
 
-    public function setEmailVerificationToken(?string $emailVerificationToken): self
+    public function setSalt($salt): self
     {
-        $this->emailVerificationToken = $emailVerificationToken;
+        $this->salt = $salt;
 
         return $this;
     }
 
-    public function getEmailVerifiedAt(): ?\DateTimeInterface
+    public function getPassword(): ?string
     {
-        return $this->emailVerifiedAt;
+        return $this->password;
     }
 
-    public function setEmailVerifiedAt(?\DateTimeInterface $emailVerifiedAt): self
+    public function setPassword(?string $password): self
     {
-        $this->emailVerifiedAt = $emailVerifiedAt;
+        $this->password = $password;
 
         return $this;
     }
 
-    public function getEmailVerificationTokenExpiresAt(): ?\DateTimeInterface
+    public function getRegistrationVerificationToken(): ?string
     {
-        return $this->emailVerificationTokenExpiresAt;
+        return $this->registrationVerificationToken;
     }
 
-    public function setEmailVerificationTokenExpiresAt(?\DateTimeInterface $emailVerificationTokenExpiresAt): self
+    public function setRegistrationVerificationToken(?string $registrationVerificationToken): self
     {
-        $this->emailVerificationTokenExpiresAt = $emailVerificationTokenExpiresAt;
+        $this->registrationVerificationToken = $registrationVerificationToken;
+
+        return $this;
+    }
+
+    public function getRegistrationVerificationTokenExpiresAt(): ?\DateTimeInterface
+    {
+        return $this->registrationVerificationTokenExpiresAt;
+    }
+
+    public function setRegistrationVerificationTokenExpiresAt(?\DateTimeInterface $registrationVerificationTokenExpiresAt): self
+    {
+        $this->registrationVerificationTokenExpiresAt = $registrationVerificationTokenExpiresAt;
+
+        return $this;
+    }
+
+    public function getRegistrationVerifiedAt(): ?\DateTimeInterface
+    {
+        return $this->registrationVerifiedAt;
+    }
+
+    public function setRegistrationVerifiedAt(?\DateTimeInterface $registrationVerifiedAt): self
+    {
+        $this->registrationVerifiedAt = $registrationVerifiedAt;
 
         return $this;
     }

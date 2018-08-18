@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\User;
 use App\ObjectNormalizer\EntityNormalize;
 use App\ObjectNormalizer\ProductNormalizer;
 use App\Repository\ProductRepository;
@@ -63,7 +62,7 @@ class ProductControllerApi extends BaseControllerApi
             ## im sure this can be done better
             foreach ($productResults as & $productResult) {
 
-                if(!array_key_exists('userPurchases', $productResult)) {
+                if (!array_key_exists('userPurchases', $productResult)) {
                     $productResult['userPurchases'] = [];
                 }
 
@@ -205,15 +204,6 @@ class ProductControllerApi extends BaseControllerApi
             return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
-
-
-
-
-
-
-
-
-
 
 
 }

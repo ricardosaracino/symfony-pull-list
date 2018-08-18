@@ -7,6 +7,7 @@ use App\ObjectNormalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
+use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
@@ -86,13 +87,13 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/signup", name="api_security_signup", methods={"OPTIONS", "POST"})
+     * @Route("/register", name="api_security_signup", methods={"OPTIONS", "POST"})
      *
      * @param Request $request
      * @param \Swift_Mailer $mailer
      * @return ApiJsonResponse
      */
-    public function signup(Request $request, \Swift_Mailer $mailer): ApiJsonResponse
+    public function register(Request $request, \Swift_Mailer $mailer): ApiJsonResponse
     {
         try {
 
@@ -106,11 +107,11 @@ class SecurityControllerApi extends BaseControllerApi
 
             $token = bin2hex(random_bytes(32));
 
-            $message = (new \Swift_Message('Verify your email address'))
-                ->setFrom($email)
-                ->setTo('recipient@example.com')
+            $message = (new \Swift_Message('Verify your email address to complete signup'))
+                ->setFrom('from@example.com')
+                ->setTo($email)
                 ->setBody(
-                    $this->renderView('emails/signup.html.twig', [
+                    $this->renderView('emails/registration.html.twig', [
                         'base' => $redirectUrl,
                         'token' => $token
                     ]),
@@ -123,13 +124,9 @@ class SecurityControllerApi extends BaseControllerApi
             $user = new User();
             $user->setIsActive(false);
 
-            // TODO do we set the password, allow them to be null, do i need a username?
-            $user->setPassword(substr(md5($email), 0, 21));
-            $user->setUsername(substr(md5($email), 0, 21));
-
             $user->setEmail($email);
-            $user->setEmailVerificationToken($token);
-            $user->setEmailVerificationTokenExpiresAt(new \DateTime('+24 hours'));
+            $user->setRegistrationVerificationToken($token);
+            $user->setRegistrationVerificationTokenExpiresAt(new \DateTime('+24 hours'));
 
             $entityManager = $this->getDoctrine()->getManager();
 
@@ -148,38 +145,43 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/verify_email", name="api_security_verify_email", methods={"OPTIONS", "POST"})
+     * @Route("/verify_registration", name="api_security_verify_registration", methods={"OPTIONS", "POST"})
      *
      * @param Request $request
      * @param UserRepository $userRepository
      * @return ApiJsonResponse
      */
-    public function verifyEmailToken(Request $request, UserRepository $userRepository): ApiJsonResponse
+    public function verifyRegistration(Request $request, UserRepository $userRepository): ApiJsonResponse
     {
         try {
 
-            if (!$emailVerificationToken = $request->get('emailVerificationToken')) {
-                throw new \Exception('Requires emailVerificationToken');
+            if (!$token = $request->get('token')) {
+                throw new \Exception('Requires token');
             }
 
             $criteria = Criteria::create();
 
-            $criteria->where(Criteria::expr()->eq('emailVerificationToken', $emailVerificationToken));
+            $criteria->where(Criteria::expr()->eq('registrationVerificationToken', $token));
 
-            $criteria->where(Criteria::expr()->gt('emailVerificationTokenExpiresAt', new \DateTime('now', new \DateTimeZone('UTC'))));
+            $criteria->where(Criteria::expr()->gt('registrationVerificationTokenExpiresAt', new \DateTime('now', new \DateTimeZone('UTC'))));
 
+            /** @var User $user */
             $user = $userRepository->matching($criteria)->first();
 
+            if (!$user) {
+                return new FailureJsonResponse();
+            }
+
             $user->setIsActive(true);
-            $user->setEmailVerificationToken(null);
-            $user->setEmailVerificationTokenExpiresAt(null);
-            $user->setEmailVerifiedAt(new \DateTime());
+            $user->setRegistrationVerificationToken(null);
+            $user->setRegistrationVerificationTokenExpiresAt(null);
+            $user->setRegistrationVerifiedAt(new \DateTime());
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return new SuccessJsonResponse(['results' => ['mailer_send' => 1]]);
+            return new SuccessJsonResponse();
 
         } catch (\Exception $exception) {
 
