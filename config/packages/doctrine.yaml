@@ -16,6 +16,10 @@ doctrine:
             collate: utf8mb4_unicode_ci
 
         url: '%env(resolve:DATABASE_URL)%'
+
+        types:
+            datetime: App\DoctrineExtensions\Types\UTCDateTimeType
+
     orm:
         metadata_cache_driver: apcu
         result_cache_driver: apcu

@@ -1,0 +1,10 @@
+nelmio_cors:
+    defaults:
+        allow_credentials: true
+        allow_origin: ['http://localhost:4200']
+        #allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+        allow_methods: ['GET', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE']
+        allow_headers: ['Content-Type', 'Authorization', 'Origin', 'Accept']
+        expose_headers: ['X-Chromelogger-Data']
+    paths:
+        '^/api': ~

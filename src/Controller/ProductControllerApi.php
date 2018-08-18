@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use App\ObjectNormalizer\EntityNormalize;
 use App\ObjectNormalizer\ProductNormalizer;
 use App\Repository\ProductRepository;
@@ -75,65 +76,8 @@ class ProductControllerApi extends BaseControllerApi
         }
     }
 
-
     /**
-     * @Route("/signup", name="api_security_sdafasdfsadf", methods={"OPTIONS", "POST"})
-     *
-     * @param Request $request
-     * @param \Swift_Mailer $mailer
-     * @return ApiJsonResponse
-     */
-    public function signup(Request $request, \Swift_Mailer $mailer): ApiJsonResponse
-    {
-        try {
-
-            if (!$email = $request->get('email')) {
-                throw new Exception('Requires Email Param');
-            }
-
-            $token = bin2hex(random_bytes(32));
-
-            $message = (new \Swift_Message('Verify your email address'))
-                ->setFrom('test@pullist.com')
-                ->setTo('recipient@example.com')
-                ->setBody(
-                    $this->renderView('emails/signup.html.twig', [
-                        'base' => 'http://localhost:4200/email-verification',
-                        'token' => $token
-                    ]),
-                    'text/html'
-                );
-
-            $result = $mailer->send($message);
-
-
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $user = new User();
-            $user->setIsActive(false);
-            $user->setEmail('Keyboard');
-            $user->setEmailVerificationToken($token);
-            $user->setEmailVerificationTokenExpiresAt(new \DateTime('+ 24h'));
-
-            $entityManager->persist($user);
-
-            $entityManager->flush();
-
-
-            return new SuccessJsonResponse(['results' => $result]);
-
-        } catch (\Exception $exception) {
-
-            $this->logger->error($exception->getMessage(), ['route_name' => ['route_name' => $request->getPathInfo()]]);
-
-            return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
-        }
-    }
-
-
-
-    /**
-     * @Route("/i/{id}", name="api_product", methods={"GET", "POST"})
+     * @Route("/{id}", name="api_product", methods={"GET"})
      *
      * @param Request $request
      * @param ProductRepository $repository
