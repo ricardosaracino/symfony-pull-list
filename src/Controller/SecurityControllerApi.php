@@ -101,6 +101,10 @@ class SecurityControllerApi extends BaseControllerApi
                 throw new \Exception('Requires email');
             }
 
+            if (!$password = $request->get('password')) {
+                throw new \Exception('Requires password');
+            }
+
             if (!$redirectUrl = $request->get('redirectUrl')) {
                 throw new \Exception('Requires redirectUrl');
             }
@@ -122,11 +126,22 @@ class SecurityControllerApi extends BaseControllerApi
 
 
             $user = new User();
-            $user->setIsActive(false);
 
+            $user->setUsername($email); // TODO would need to make a custom UserProviderInterface for email
             $user->setEmail($email);
+            $user->setIsActive(false);
             $user->setRegistrationVerificationToken($token);
             $user->setRegistrationVerificationTokenExpiresAt(new \DateTime('+24 hours'));
+
+
+            $user->setSalt(bin2hex(random_bytes(16)));
+
+            $encoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
+
+            $encodedPassword = $encoder->encodePassword($password, $user->getSalt());
+
+            $user->setPassword($encodedPassword);
+
 
             $entityManager = $this->getDoctrine()->getManager();
 
