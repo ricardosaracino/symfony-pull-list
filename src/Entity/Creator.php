@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
 class Creator
 {
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,7 +22,7 @@ class Creator
     private $id;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="string", length=255)
      */

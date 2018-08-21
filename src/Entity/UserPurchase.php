@@ -18,14 +18,14 @@ class UserPurchase
     private $id;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="datetime")
      */
     private $purchasedAt;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="float")
      */

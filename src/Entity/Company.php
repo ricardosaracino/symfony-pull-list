@@ -15,7 +15,7 @@ class Company
     #todo company to company_type (1-*)
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:companies:output", "api:products:output"})
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -24,23 +24,30 @@ class Company
     private $id;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:companies:output", "api:products:output"})
      *
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Groups({"api:companies:output"})
+     *
      * @ORM\Column(type="text")
      */
     private $description;
 
     /**
+     * @Groups({"api:companies:output"})
+     *
+
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
 
     /**
+     * @Groups({"api:companies:output"})
+     *
      * @ORM\Column(type="datetime")
      */
     private $updatedAt;

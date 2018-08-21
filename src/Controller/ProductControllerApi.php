@@ -58,7 +58,7 @@ class ProductControllerApi extends BaseControllerApi
 
             $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
-            $userPurchaseResults = $serializer->normalize($userPurchases, null, ['groups' => ['get_product']]);
+            $userPurchaseResults = $serializer->normalize($userPurchases, null, ['groups' => ['api:products:output']]);
 
             ## im sure this can be done better
             foreach ($productResults as & $productResult) {
@@ -81,9 +81,10 @@ class ProductControllerApi extends BaseControllerApi
      *
      * @param Request $request
      * @param ProductRepository $repository
+     * @param UserPurchaseRepository $purchaseRepository
      * @return ApiJsonResponse
      */
-    public function getCachedProduct(Request $request, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getProduct(Request $request, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
@@ -111,7 +112,7 @@ class ProductControllerApi extends BaseControllerApi
 
                 $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
-                $results = $serializer->normalize($collection, null, ['groups' => ['get_product']]);
+                $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
                 ## Cache result
 
@@ -190,7 +191,7 @@ class ProductControllerApi extends BaseControllerApi
 
                 $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
-                $results = $serializer->normalize($collection, null, ['groups' => ['get_product']]);
+                $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
                 ## Cache result
 
@@ -213,6 +214,4 @@ class ProductControllerApi extends BaseControllerApi
             return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
-
-
 }

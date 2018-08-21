@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\ObjectNormalizer\ConstraintViolationNormalizer;
+use App\ObjectNormalizer\ConstraintViolationObjectNormalizer;
 use App\ObjectNormalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
@@ -18,7 +19,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
 use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -31,9 +31,10 @@ class SecurityControllerApi extends BaseControllerApi
     /**
      * @Route("/login", name="api_security_login", methods="POST")
      *
+     * @param Request $request
      * @return ApiJsonResponse
      */
-    public function login(): ApiJsonResponse
+    public function login(Request $request): ApiJsonResponse
     {
         try {
 
@@ -43,7 +44,7 @@ class SecurityControllerApi extends BaseControllerApi
 
             $normalizer = new ObjectNormalizer($classMetadataFactory);
 
-            $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
+            $serializer = new Serializer([new \App\Normalizer\DateTimeNormalizer(), $normalizer]);
 
             $user = $serializer->normalize($token->getUser(), null, ['groups' => ['token']]);
 
@@ -51,20 +52,21 @@ class SecurityControllerApi extends BaseControllerApi
 
         } catch (\Exception $exception) {
 
-            $this->logger->error($exception->getMessage(), ['route_name' => 'api_auth_create_admin']);
+            $this->logger->error($exception->getMessage(), ['route_name' => ['route_name' => $request->getPathInfo()]]);
 
-            return new ErrorJsonResponse('Error in api_auth_create_admin');
+            return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
 
     /**
      * @Route("/logout", name="api_security_logout", methods="GET")
      *
-     * @return ApiJsonResponse
-     *
      * @see \App\Security\LogoutSuccessHandler
+     *
+     * @param Request $request
+     * @return ApiJsonResponse
      */
-    public function logout(): ApiJsonResponse
+    public function logout(Request $request): ApiJsonResponse
     {
         ## Needed for Route, LogoutSuccessHandler is called instead
         return new SuccessJsonResponse();
@@ -72,8 +74,11 @@ class SecurityControllerApi extends BaseControllerApi
 
     /**
      * @Route("/user", name="api_security_user", methods="GET")
+     *
+     * @param Request $request
+     * @return ApiJsonResponse
      */
-    public function user(): ApiJsonResponse
+    public function user(Request $request): ApiJsonResponse
     {
         try {
 
@@ -88,14 +93,14 @@ class SecurityControllerApi extends BaseControllerApi
 
         } catch (\Exception $exception) {
 
-            $this->logger->error($exception->getMessage(), ['route_name' => 'api_security_login']);
+            $this->logger->error($exception->getMessage(), ['route_name' => ['route_name' => $request->getPathInfo()]]);
 
-            return new ErrorJsonResponse('Error in api_security_login');
+            return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
 
     /**
-     * @Route("/register", name="api_security_signup", methods={"OPTIONS", "POST"})
+     * @Route("/register", name="api_security_register", methods={"POST"})
      *
      * @param Request $request
      * @param ValidatorInterface $validator
@@ -140,12 +145,11 @@ class SecurityControllerApi extends BaseControllerApi
             $user->setPassword($encodedPassword);
 
 
-
             $errors = $validator->validate($user, null, ['register']);
 
             if ($errors->count()) {
 
-                $serializer = new Serializer([new Normalizer()]);
+                $serializer = new Serializer([new ConstraintViolationObjectNormalizer()]);
 
                 return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
             }
@@ -174,7 +178,6 @@ class SecurityControllerApi extends BaseControllerApi
 
             $result = $mailer->send($message);
 */
-
 
 
             return new SuccessJsonResponse(['results' => ['mailer_send' => $result]]);

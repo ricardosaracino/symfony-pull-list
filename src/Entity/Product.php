@@ -15,7 +15,7 @@ class Product
     ## todo series ManyToOne? , by ManyToMany
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -24,77 +24,77 @@ class Product
     private $id;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="text")
      */
     private $description;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $details;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $UPC;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $imageUrl;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $vendorPrice;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $customerPrice;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $customerDiscount;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $customerDiscountPrice;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $preOrderDeadlineAt;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\Column(type="datetime", nullable=true)
      */
@@ -111,7 +111,7 @@ class Product
     private $updatedAt;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\ProductType", inversedBy="products")
      * @ORM\JoinColumn(nullable=false)
@@ -119,7 +119,7 @@ class Product
     private $productType;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="products")
      * @ORM\JoinColumn(nullable=false)
@@ -127,14 +127,14 @@ class Product
     private $company;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Genre", inversedBy="products")
      */
     private $genres;
 
     /**
-     * @Groups({"get_product"})
+     * @Groups({"api:products:output"})
      *
      * @ORM\ManyToMany(targetEntity="App\Entity\Creator", inversedBy="products")
      */
