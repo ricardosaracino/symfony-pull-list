@@ -9,10 +9,15 @@ use App\Repository\UserPurchaseRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\SuccessJsonResponse;
+
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
 
 /**
@@ -45,19 +50,15 @@ class ProductControllerApi extends BaseControllerApi
                 )
             );
 
-            $userPurchaseNormalizer = new EntityNormalize();
-
-            $userPurchaseNormalizer->setIgnoredAttributes(['id', 'user']);
-
-            $userPurchaseNormalizer->setCallbacks(array('product' => function ($o) {
-                return ['id' => $o->getId()];
-            }));
-
-            $serializer = new Serializer([new DateTimeNormalizer(), $userPurchaseNormalizer]);
-
             $userPurchases = $purchaseRepository->matching($criteria);
 
-            $userPurchaseResults = $serializer->normalize($userPurchases);
+            $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
+
+            $normalizer = new ObjectNormalizer($classMetadataFactory);
+
+            $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
+
+            $userPurchaseResults = $serializer->normalize($userPurchases, null, ['groups' => ['get_product']]);
 
             ## im sure this can be done better
             foreach ($productResults as & $productResult) {
@@ -104,9 +105,13 @@ class ProductControllerApi extends BaseControllerApi
 
                 $collection = $repository->matching($criteria);
 
-                $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
+                $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
 
-                $results = $serializer->normalize($collection);
+                $normalizer = new ObjectNormalizer($classMetadataFactory);
+
+                $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
+
+                $results = $serializer->normalize($collection, null, ['groups' => ['get_product']]);
 
                 ## Cache result
 
@@ -179,9 +184,13 @@ class ProductControllerApi extends BaseControllerApi
 
                 $collection = $productRepository->matching($criteria);
 
-                $serializer = new Serializer([new DateTimeNormalizer(), new ProductNormalizer()]);
+                $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
 
-                $results = $serializer->normalize($collection);
+                $normalizer = new ObjectNormalizer($classMetadataFactory);
+
+                $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
+
+                $results = $serializer->normalize($collection, null, ['groups' => ['get_product']]);
 
                 ## Cache result
 

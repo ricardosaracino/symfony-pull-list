@@ -6,6 +6,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 /**
@@ -28,9 +30,16 @@ class User implements UserInterface, \Serializable
     private $username;
 
     /**
+     * @Assert\Email(groups={"register"})
+     * @Groups({"token"})
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;
+
+    /**
+     * @Assert\Regex("/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,64}$/", groups={"register"})
+     */
+    private $textPassword;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
@@ -53,6 +62,7 @@ class User implements UserInterface, \Serializable
     private $registrationVerificationTokenExpiresAt;
 
     /**
+     * @Groups({"token"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $registrationVerifiedAt;
@@ -67,6 +77,11 @@ class User implements UserInterface, \Serializable
      */
     private $userPurchases;
 
+    /**
+     * @var array
+     */
+    private $roles = ['ROLE_USER'];
+
 
     public function __construct()
     {
@@ -79,7 +94,7 @@ class User implements UserInterface, \Serializable
 
     public function getRoles()
     {
-        return ['ROLE_USER'];
+        return $this->roles;
     }
 
     /**
@@ -142,16 +157,20 @@ class User implements UserInterface, \Serializable
         return $this;
     }
 
-    public function getSalt(): ?string
+    /**
+     * @return mixed
+     */
+    public function getTextPassword()
     {
-        return $this->salt;
+        return $this->textPassword;
     }
 
-    public function setSalt($salt): self
+    /**
+     * @param mixed $textPassword
+     */
+    public function setTextPassword($textPassword)
     {
-        $this->salt = $salt;
-
-        return $this;
+        $this->textPassword = $textPassword;
     }
 
     public function getPassword(): ?string
@@ -162,6 +181,18 @@ class User implements UserInterface, \Serializable
     public function setPassword(?string $password): self
     {
         $this->password = $password;
+
+        return $this;
+    }
+
+    public function getSalt(): ?string
+    {
+        return $this->salt;
+    }
+
+    public function setSalt($salt): self
+    {
+        $this->salt = $salt;
 
         return $this;
     }

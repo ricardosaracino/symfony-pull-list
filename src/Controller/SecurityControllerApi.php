@@ -3,19 +3,25 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\ObjectNormalizer\ConstraintViolationNormalizer;
 use App\ObjectNormalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
+use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
+use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
+use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/security")
@@ -33,13 +39,15 @@ class SecurityControllerApi extends BaseControllerApi
 
             $token = $this->get('security.token_storage')->getToken();
 
-            $user = $token->getUser();
+            $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
 
-            $serializer = new Serializer([new DateTimeNormalizer(), new UserNormalizer()]);
+            $normalizer = new ObjectNormalizer($classMetadataFactory);
 
-            $results = $serializer->normalize($user);
+            $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
-            return new SuccessJsonResponse(['results' => $results]);
+            $user = $serializer->normalize($token->getUser(), null, ['groups' => ['token']]);
+
+            return new SuccessJsonResponse(['user' => $user]);
 
         } catch (\Exception $exception) {
 
@@ -73,7 +81,7 @@ class SecurityControllerApi extends BaseControllerApi
 
             if ($token->isAuthenticated()) {
                 // "anon." is authenticated when firewalls: api: anonymous: ~
-                return new SuccessJsonResponse($token->getUser(), new UserNormalizer());
+                return new SuccessJsonResponse(['token', $token]);
             }
 
             return new ErrorJsonResponse('Authentication Required', Response::HTTP_UNAUTHORIZED);
@@ -90,10 +98,11 @@ class SecurityControllerApi extends BaseControllerApi
      * @Route("/register", name="api_security_signup", methods={"OPTIONS", "POST"})
      *
      * @param Request $request
+     * @param ValidatorInterface $validator
      * @param \Swift_Mailer $mailer
      * @return ApiJsonResponse
      */
-    public function register(Request $request, \Swift_Mailer $mailer): ApiJsonResponse
+    public function register(Request $request, ValidatorInterface $validator, \Swift_Mailer $mailer): ApiJsonResponse
     {
         try {
 
@@ -111,24 +120,12 @@ class SecurityControllerApi extends BaseControllerApi
 
             $token = bin2hex(random_bytes(32));
 
-            $message = (new \Swift_Message('Verify your email address to complete signup'))
-                ->setFrom('from@example.com')
-                ->setTo($email)
-                ->setBody(
-                    $this->renderView('emails/registration.html.twig', [
-                        'base' => $redirectUrl,
-                        'token' => $token
-                    ]),
-                    'text/html'
-                );
-
-            $result = $mailer->send($message);
-
 
             $user = new User();
 
             $user->setUsername($email); // TODO would need to make a custom UserProviderInterface for email
             $user->setEmail($email);
+            $user->setTextPassword($password); // Not saved just for validation
             $user->setIsActive(false);
             $user->setRegistrationVerificationToken($token);
             $user->setRegistrationVerificationTokenExpiresAt(new \DateTime('+24 hours'));
@@ -143,11 +140,42 @@ class SecurityControllerApi extends BaseControllerApi
             $user->setPassword($encodedPassword);
 
 
+
+            $errors = $validator->validate($user, null, ['register']);
+
+            if ($errors->count()) {
+
+                $serializer = new Serializer([new Normalizer()]);
+
+                return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
+            }
+
+
             $entityManager = $this->getDoctrine()->getManager();
 
             $entityManager->persist($user);
 
             $entityManager->flush();
+
+
+            $result = 1;
+
+            /*
+            $message = (new \Swift_Message('Verify your email address to complete signup'))
+                ->setFrom('from@example.com')
+                ->setTo($email)
+                ->setBody(
+                    $this->renderView('emails/registration.html.twig', [
+                        'base' => $redirectUrl,
+                        'token' => $token
+                    ]),
+                    'text/html'
+                );
+
+            $result = $mailer->send($message);
+*/
+
+
 
             return new SuccessJsonResponse(['results' => ['mailer_send' => $result]]);
 

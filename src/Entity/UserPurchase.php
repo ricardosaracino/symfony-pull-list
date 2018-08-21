@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserPurchaseRepository")
@@ -17,11 +18,15 @@ class UserPurchase
     private $id;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="datetime")
      */
     private $purchasedAt;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="float")
      */
     private $purchasePrice;

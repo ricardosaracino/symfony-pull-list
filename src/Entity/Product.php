@@ -5,6 +5,7 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ProductRepository")
@@ -14,6 +15,8 @@ class Product
     ## todo series ManyToOne? , by ManyToMany
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -21,56 +24,78 @@ class Product
     private $id;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="text")
      */
     private $description;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $details;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $UPC;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $imageUrl;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $vendorPrice;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $customerPrice;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="integer", nullable=true)
      */
     private $customerDiscount;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="decimal", precision=7, scale=2, nullable=true)
      */
     private $customerDiscountPrice;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $preOrderDeadlineAt;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $releasedAt;
@@ -86,23 +111,31 @@ class Product
     private $updatedAt;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\ProductType", inversedBy="products")
      * @ORM\JoinColumn(nullable=false)
      */
     private $productType;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="products")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Genre", inversedBy="products")
      */
     private $genres;
 
     /**
+     * @Groups({"get_product"})
+     *
      * @ORM\ManyToMany(targetEntity="App\Entity\Creator", inversedBy="products")
      */
     private $creators;

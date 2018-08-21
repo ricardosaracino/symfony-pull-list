@@ -40,6 +40,18 @@ services:
      #     arguments: ['@doctrine.apcu.cache']
 
 
+    datetime_normalizer:
+        class: App\Normalizer\DateTimeNormalizer
+        public: true
+        tags: [serializer.normalizer]
+
+
+    constraint_violation_normalizer:
+        class: App\Normalizer\ConstraintViolationNormalizer
+        public: true
+        tags: [serializer.normalizer]
+
+
     kernel.event_listener.json_request_transformer:
       class: App\EventListener\JsonRequestListener
       tags:

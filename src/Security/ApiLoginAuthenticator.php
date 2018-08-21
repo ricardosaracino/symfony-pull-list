@@ -83,6 +83,9 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
             throw new AuthenticationException('Invalid Password');
         }
 
+
+
+
         return true;
     }
 
