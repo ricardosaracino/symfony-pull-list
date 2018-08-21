@@ -19,6 +19,7 @@ use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/api/products")
@@ -80,11 +81,12 @@ class ProductControllerApi extends BaseControllerApi
      * @Route("/{id}", name="api_product", methods={"GET"})
      *
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @param ProductRepository $repository
      * @param UserPurchaseRepository $purchaseRepository
      * @return ApiJsonResponse
      */
-    public function getProduct(Request $request, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getProduct(Request $request, SerializerInterface $serializer, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
@@ -105,12 +107,6 @@ class ProductControllerApi extends BaseControllerApi
                 }
 
                 $collection = $repository->matching($criteria);
-
-                $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-
-                $normalizer = new ObjectNormalizer($classMetadataFactory);
-
-                $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
                 $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
