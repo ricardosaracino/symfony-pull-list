@@ -14,6 +14,7 @@ use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/api/companies")
@@ -24,20 +25,15 @@ class CompanyControllerApi extends BaseControllerApi
      * @Route("/", name="api_company", methods="GET")
      *
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @param CompanyRepository $repository
      * @return ApiJsonResponse
      */
-    public function getCompanies(Request $request, CompanyRepository $repository): ApiJsonResponse
+    public function getCompanies(Request $request, SerializerInterface $serializer, CompanyRepository $repository): ApiJsonResponse
     {
         try {
 
             $companies = $repository->findAll();
-
-            $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-
-            $normalizer = new ObjectNormalizer($classMetadataFactory);
-
-            $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
             $results = $serializer->normalize($companies, null, ['groups' => ['api:companies:output']]);
 

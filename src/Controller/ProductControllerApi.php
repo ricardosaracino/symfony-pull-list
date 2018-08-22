@@ -2,23 +2,17 @@
 
 namespace App\Controller;
 
-use App\ObjectNormalizer\EntityNormalize;
-use App\ObjectNormalizer\ProductNormalizer;
 use App\Repository\ProductRepository;
 use App\Repository\UserPurchaseRepository;
+
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\SuccessJsonResponse;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
+
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\DateTimeNormalizer;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Serializer\SerializerInterface;
 
 /**
@@ -30,9 +24,10 @@ class ProductControllerApi extends BaseControllerApi
 
     /**
      * @param array|null $productResults
+     * @param SerializerInterface $serializer
      * @param UserPurchaseRepository $purchaseRepository
      */
-    private function addUserPurchasesResults(array & $productResults = null, UserPurchaseRepository $purchaseRepository): void
+    private function addUserPurchasesResults(array & $productResults = null, SerializerInterface $serializer, UserPurchaseRepository $purchaseRepository): void
     {
         if (!empty($productResults)) {
 
@@ -52,12 +47,6 @@ class ProductControllerApi extends BaseControllerApi
             );
 
             $userPurchases = $purchaseRepository->matching($criteria);
-
-            $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-
-            $normalizer = new ObjectNormalizer($classMetadataFactory);
-
-            $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
 
             $userPurchaseResults = $serializer->normalize($userPurchases, null, ['groups' => ['api:products:output']]);
 
@@ -118,7 +107,7 @@ class ProductControllerApi extends BaseControllerApi
             }
 
             ## add un-cached results
-            $this->addUserPurchasesResults($results, $purchaseRepository);
+            $this->addUserPurchasesResults($results, $serializer, $purchaseRepository);
 
             return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
@@ -136,11 +125,12 @@ class ProductControllerApi extends BaseControllerApi
      * @Route("/", name="api_products", methods={"GET", "POST"})
      *
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @param ProductRepository $productRepository
      * @param UserPurchaseRepository $purchaseRepository
      * @return ApiJsonResponse
      */
-    public function getProducts(Request $request, ProductRepository $productRepository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getProducts(Request $request, SerializerInterface $serializer, ProductRepository $productRepository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
@@ -181,12 +171,6 @@ class ProductControllerApi extends BaseControllerApi
 
                 $collection = $productRepository->matching($criteria);
 
-                $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-
-                $normalizer = new ObjectNormalizer($classMetadataFactory);
-
-                $serializer = new Serializer([new DateTimeNormalizer(), $normalizer]);
-
                 $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
                 ## Cache result
@@ -197,7 +181,7 @@ class ProductControllerApi extends BaseControllerApi
             }
 
             ## add un-cached results
-            $this->addUserPurchasesResults($results, $purchaseRepository);
+            $this->addUserPurchasesResults($results, $serializer, $purchaseRepository);
 
             return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
