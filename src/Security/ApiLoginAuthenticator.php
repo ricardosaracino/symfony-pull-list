@@ -41,8 +41,13 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
     public function getCredentials(Request $request)
     {
         try {
+            $credentials = new \stdClass();
+
+            $credentials->username = $request->get('username');
+            $credentials->password = $request->get('password');
+
+            return $credentials;
             ## todo better way to do this?
-            return json_decode($request->getContent());
         } catch (\Exception $exception) {
 
         }
@@ -82,9 +87,6 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
             # Calls \App\Security\ApiLoginAuthenticator::onAuthenticationFailure
             throw new AuthenticationException('Invalid Password');
         }
-
-
-
 
         return true;
     }

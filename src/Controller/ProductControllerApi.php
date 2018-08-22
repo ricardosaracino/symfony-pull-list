@@ -4,13 +4,10 @@ namespace App\Controller;
 
 use App\Repository\ProductRepository;
 use App\Repository\UserPurchaseRepository;
-
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\SuccessJsonResponse;
-
 use Doctrine\Common\Collections\Criteria;
-
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
