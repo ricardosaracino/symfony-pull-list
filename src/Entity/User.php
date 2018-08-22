@@ -30,8 +30,10 @@ class User implements UserInterface, \Serializable
     private $username;
 
     /**
-     * @Assert\Email(groups={"register"})
      * @Groups({"token"})
+     *
+     * @Assert\Email(groups={"register"})
+     *
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $email;

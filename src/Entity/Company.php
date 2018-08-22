@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Annotations\Annotation\Required;
+use Symfony\Component\Validator\Constraints as Assert;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +18,9 @@ class Company
     #todo company to company_type (1-*)
 
     /**
-     * @Groups({"api:companies:output", "api:products:output"})
+     * @Groups({"api:companies:output", "api:companies:input", "api:products:output"})
+     *
+     * @Assert\NotBlank()
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -24,7 +29,7 @@ class Company
     private $id;
 
     /**
-     * @Groups({"api:companies:output", "api:products:output"})
+     * @Groups({"api:companies:output", "api:companies:input", "api:products:output"})
      *
      * @ORM\Column(type="string", length=255)
      */
