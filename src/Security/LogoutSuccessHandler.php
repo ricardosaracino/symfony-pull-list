@@ -10,6 +10,8 @@ class LogoutSuccessHandler implements LogoutSuccessHandlerInterface
 {
     public function onLogoutSuccess(Request $request)
     {
+        $request->getSession()->clear();
+
         return new SuccessJsonResponse();
     }
 }

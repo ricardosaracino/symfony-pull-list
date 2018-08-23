@@ -21,6 +21,7 @@ use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
 use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -59,7 +60,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/logout", name="api_security_logout", methods="GET")
+     * @Route("/logout", name="api_security_logout", methods="POST")
      *
      * @see \App\Security\LogoutSuccessHandler
      *
@@ -103,11 +104,12 @@ class SecurityControllerApi extends BaseControllerApi
      * @Route("/register", name="api_security_register", methods={"POST"})
      *
      * @param Request $request
+     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      * @param \Swift_Mailer $mailer
      * @return ApiJsonResponse
      */
-    public function register(Request $request, ValidatorInterface $validator, \Swift_Mailer $mailer): ApiJsonResponse
+    public function register(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, \Swift_Mailer $mailer): ApiJsonResponse
     {
         try {
 
@@ -148,23 +150,9 @@ class SecurityControllerApi extends BaseControllerApi
             $errors = $validator->validate($user, null, ['register']);
 
             if ($errors->count()) {
-
-                $serializer = new Serializer([new ConstraintViolationObjectNormalizer()]);
-
                 return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
             }
 
-
-            $entityManager = $this->getDoctrine()->getManager();
-
-            $entityManager->persist($user);
-
-            $entityManager->flush();
-
-
-            $result = 1;
-
-            /*
             $message = (new \Swift_Message('Verify your email address to complete signup'))
                 ->setFrom('from@example.com')
                 ->setTo($email)
@@ -176,11 +164,17 @@ class SecurityControllerApi extends BaseControllerApi
                     'text/html'
                 );
 
-            $result = $mailer->send($message);
-*/
+
+            if ($result = $mailer->send($message)) {
+                return new FailureJsonResponse(['errors' => ['message' => 'Error sending mail']]);
+            }
 
 
-            return new SuccessJsonResponse(['results' => ['mailer_send' => $result]]);
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return new SuccessJsonResponse();
 
         } catch (\Exception $exception) {
 

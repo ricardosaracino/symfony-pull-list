@@ -6,10 +6,12 @@ use App\Entity\Company;
 use App\Repository\CompanyRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
+use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/companies")
@@ -47,10 +49,11 @@ class CompanyControllerApi extends BaseControllerApi
      *
      * @param Request $request
      * @param SerializerInterface $serializer
+     * @param ValidatorInterface $validator
      * @param CompanyRepository $companyRepository
      * @return ApiJsonResponse
      */
-    public function saveCompanies(Request $request, SerializerInterface $serializer, CompanyRepository $companyRepository): ApiJsonResponse
+    public function saveCompanies(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, CompanyRepository $companyRepository): ApiJsonResponse
     {
         try {
 
@@ -58,15 +61,31 @@ class CompanyControllerApi extends BaseControllerApi
 
             $company = null;
 
-            if (array_key_exists('id', $companyData)) {
+            if (isset($companyData['id'])) {
                 $company = $companyRepository->findOneBy(['id' => $companyData['id']]);
             } else {
                 $company = new Company();
             }
 
-            $company = $serializer->denormalize($companyData, 'App\Entity\Company', null, ['groups' => ['api:companies:input']]);
+            $serializer->denormalize($companyData, 'App\Entity\Company', null,
 
-            return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => 1, 'count' => 1, 'results' => $results]);
+                ['object_to_populate' => $company, 'groups' => ['api:companies:input']]);
+
+
+            $errors = $validator->validate($company);
+
+            if ($errors->count()) {
+
+                $this->logger->error((string)$errors, ['route_name' => $request->getPathInfo()]);
+
+                return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
+            }
+
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($company);
+            $entityManager->flush();
+
+            return new SuccessJsonResponse();
 
         } catch (\Exception $exception) {
 

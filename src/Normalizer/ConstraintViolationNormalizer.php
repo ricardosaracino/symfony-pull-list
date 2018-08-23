@@ -4,6 +4,7 @@ namespace App\Normalizer;
 
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 use Symfony\Component\Validator\ConstraintViolation;
+use Symfony\Component\Validator\ConstraintViolationList;
 
 class ConstraintViolationNormalizer implements NormalizerInterface
 {
@@ -12,7 +13,14 @@ class ConstraintViolationNormalizer implements NormalizerInterface
      */
     public function normalize($object, $format = null, array $context = array())
     {
-        return $object->getMessage();
+        $a = [];
+
+        /** @var ConstraintViolation $constraintViolation */
+        foreach ($object as $constraintViolation) {
+            $a [] = ['message' => $constraintViolation->getMessage(), 'property' => $constraintViolation->getPropertyPath()];
+        }
+
+        return $a;
     }
 
     /**
@@ -20,6 +28,6 @@ class ConstraintViolationNormalizer implements NormalizerInterface
      */
     public function supportsNormalization($data, $format = null)
     {
-        return $data instanceof ConstraintViolation;
+        return $data instanceof ConstraintViolationList;
     }
 }
