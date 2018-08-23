@@ -10,7 +10,6 @@ use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -22,17 +21,16 @@ class CompanyControllerApi extends BaseControllerApi
      * @Route("/", methods="GET")
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param CompanyRepository $companyRepository
      * @return ApiJsonResponse
      */
-    public function getCompanies(Request $request, SerializerInterface $serializer, CompanyRepository $companyRepository): ApiJsonResponse
+    public function getCompanies(Request $request, CompanyRepository $companyRepository): ApiJsonResponse
     {
         try {
 
             $companies = $companyRepository->findAll();
 
-            $results = $serializer->normalize($companies, null, ['groups' => ['api:companies:output']]);
+            $results = $this->serializer->normalize($companies, null, ['groups' => ['api:companies:output']]);
 
             return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => count($results), 'count' => count($results), 'results' => $results]);
 
@@ -48,12 +46,11 @@ class CompanyControllerApi extends BaseControllerApi
      * @Route("/", methods="POST")
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      * @param CompanyRepository $companyRepository
      * @return ApiJsonResponse
      */
-    public function saveCompanies(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, CompanyRepository $companyRepository): ApiJsonResponse
+    public function saveCompanies(Request $request, ValidatorInterface $validator, CompanyRepository $companyRepository): ApiJsonResponse
     {
         try {
 
@@ -67,7 +64,7 @@ class CompanyControllerApi extends BaseControllerApi
                 $company = new Company();
             }
 
-            $serializer->denormalize($companyData, 'App\Entity\Company', null,
+            $this->serializer->denormalize($companyData, 'App\Entity\Company', null,
 
                 ['object_to_populate' => $company, 'groups' => ['api:companies:input']]);
 
@@ -78,7 +75,7 @@ class CompanyControllerApi extends BaseControllerApi
 
                 $this->logger->error((string)$errors, ['route_name' => $request->getPathInfo()]);
 
-                return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
+                return new FailureJsonResponse(['errors' => $this->serializer->normalize($errors)]);
             }
 
             $entityManager = $this->getDoctrine()->getManager();
@@ -94,6 +91,4 @@ class CompanyControllerApi extends BaseControllerApi
             return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
         }
     }
-
-
 }

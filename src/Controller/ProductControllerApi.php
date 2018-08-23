@@ -10,7 +10,6 @@ use App\Response\SuccessJsonResponse;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/api/products")
@@ -21,10 +20,9 @@ class ProductControllerApi extends BaseControllerApi
 
     /**
      * @param array|null $productResults
-     * @param SerializerInterface $serializer
      * @param UserPurchaseRepository $purchaseRepository
      */
-    private function addUserPurchasesResults(array & $productResults = null, SerializerInterface $serializer, UserPurchaseRepository $purchaseRepository): void
+    private function addUserPurchasesResults(array & $productResults = null, UserPurchaseRepository $purchaseRepository): void
     {
         if (!empty($productResults)) {
 
@@ -45,7 +43,7 @@ class ProductControllerApi extends BaseControllerApi
 
             $userPurchases = $purchaseRepository->matching($criteria);
 
-            $userPurchaseResults = $serializer->normalize($userPurchases, null, ['groups' => ['api:products:output']]);
+            $userPurchaseResults = $this->serializer->normalize($userPurchases, null, ['groups' => ['api:products:output']]);
 
             ## im sure this can be done better
             foreach ($productResults as & $productResult) {
@@ -67,12 +65,11 @@ class ProductControllerApi extends BaseControllerApi
      * @Route("/{id}", methods={"GET"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ProductRepository $repository
      * @param UserPurchaseRepository $purchaseRepository
      * @return ApiJsonResponse
      */
-    public function getProduct(Request $request, SerializerInterface $serializer, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getProduct(Request $request, ProductRepository $repository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
@@ -94,7 +91,7 @@ class ProductControllerApi extends BaseControllerApi
 
                 $collection = $repository->matching($criteria);
 
-                $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
+                $results = $this->serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
                 ## Cache result
 
@@ -104,7 +101,7 @@ class ProductControllerApi extends BaseControllerApi
             }
 
             ## add un-cached results
-            $this->addUserPurchasesResults($results, $serializer, $purchaseRepository);
+            $this->addUserPurchasesResults($results, $purchaseRepository);
 
             return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 
@@ -122,12 +119,11 @@ class ProductControllerApi extends BaseControllerApi
      * @Route("/", methods={"GET", "POST"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ProductRepository $productRepository
      * @param UserPurchaseRepository $purchaseRepository
      * @return ApiJsonResponse
      */
-    public function getProducts(Request $request, SerializerInterface $serializer, ProductRepository $productRepository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
+    public function getProducts(Request $request, ProductRepository $productRepository, UserPurchaseRepository $purchaseRepository): ApiJsonResponse
     {
         try {
 
@@ -168,7 +164,7 @@ class ProductControllerApi extends BaseControllerApi
 
                 $collection = $productRepository->matching($criteria);
 
-                $results = $serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
+                $results = $this->serializer->normalize($collection, null, ['groups' => ['api:products:output']]);
 
                 ## Cache result
 
@@ -178,7 +174,7 @@ class ProductControllerApi extends BaseControllerApi
             }
 
             ## add un-cached results
-            $this->addUserPurchasesResults($results, $serializer, $purchaseRepository);
+            $this->addUserPurchasesResults($results, $purchaseRepository);
 
             return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
 

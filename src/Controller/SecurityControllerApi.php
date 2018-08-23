@@ -3,25 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\ObjectNormalizer\ConstraintViolationNormalizer;
-use App\ObjectNormalizer\ConstraintViolationObjectNormalizer;
-use App\ObjectNormalizer\UserNormalizer;
 use App\Repository\UserRepository;
 use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\Criteria;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\MessageDigestPasswordEncoder;
-use Symfony\Component\Serializer\Mapping\Factory\ClassMetadataFactory;
-use Symfony\Component\Serializer\Mapping\Loader\AnnotationLoader;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -41,13 +32,7 @@ class SecurityControllerApi extends BaseControllerApi
 
             $token = $this->get('security.token_storage')->getToken();
 
-            $classMetadataFactory = new ClassMetadataFactory(new AnnotationLoader(new AnnotationReader()));
-
-            $normalizer = new ObjectNormalizer($classMetadataFactory);
-
-            $serializer = new Serializer([new \App\Normalizer\DateTimeNormalizer(), $normalizer]);
-
-            $user = $serializer->normalize($token->getUser(), null, ['groups' => ['token']]);
+            $user = $this->serializer->normalize($token->getUser(), null, ['groups' => ['token']]);
 
             return new SuccessJsonResponse(['user' => $user]);
 
@@ -87,7 +72,10 @@ class SecurityControllerApi extends BaseControllerApi
 
             if ($token->isAuthenticated()) {
                 // "anon." is authenticated when firewalls: api: anonymous: ~
-                return new SuccessJsonResponse(['token', $token]);
+
+                $user = $this->serializer->normalize($token->getUser(), null, ['groups' => ['token']]);
+
+                return new SuccessJsonResponse(['user' => $user]);
             }
 
             return new ErrorJsonResponse('Authentication Required', Response::HTTP_UNAUTHORIZED);
@@ -104,12 +92,11 @@ class SecurityControllerApi extends BaseControllerApi
      * @Route("/register", methods={"POST"})
      *
      * @param Request $request
-     * @param SerializerInterface $serializer
      * @param ValidatorInterface $validator
      * @param \Swift_Mailer $mailer
      * @return ApiJsonResponse
      */
-    public function register(Request $request, SerializerInterface $serializer, ValidatorInterface $validator, \Swift_Mailer $mailer): ApiJsonResponse
+    public function register(Request $request, ValidatorInterface $validator, \Swift_Mailer $mailer): ApiJsonResponse
     {
         try {
 
@@ -150,7 +137,7 @@ class SecurityControllerApi extends BaseControllerApi
             $errors = $validator->validate($user, null, ['register']);
 
             if ($errors->count()) {
-                return new FailureJsonResponse(['errors' => $serializer->normalize($errors)]);
+                return new FailureJsonResponse(['errors' => $this->serializer->normalize($errors)]);
             }
 
             $message = (new \Swift_Message('Verify your email address to complete signup'))
@@ -164,11 +151,9 @@ class SecurityControllerApi extends BaseControllerApi
                     'text/html'
                 );
 
-
             if ($result = $mailer->send($message)) {
                 return new FailureJsonResponse(['errors' => ['message' => 'Error sending mail']]);
             }
-
 
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
@@ -240,7 +225,6 @@ class SecurityControllerApi extends BaseControllerApi
     public function createAdmin(Request $request): ApiJsonResponse
     {
         try {
-
             $user = new User();
 
             $encoder = new MessageDigestPasswordEncoder('sha512', true, 5000);
@@ -255,7 +239,7 @@ class SecurityControllerApi extends BaseControllerApi
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return new SuccessJsonResponse($user, new UserNormalizer());
+            return new SuccessJsonResponse($user);
 
         } catch (\Exception $exception) {
 
