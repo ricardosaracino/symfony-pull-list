@@ -16,9 +16,7 @@ class Company
     #todo company to company_type (1-*)
 
     /**
-     * @Groups({"api:companies:output", "api:companies:input", "api:products:output"})
-     *
-     * @Assert\NotBlank()
+     * @Groups({"api:companies:output", "api:products:output"})
      *
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -29,12 +27,14 @@ class Company
     /**
      * @Groups({"api:companies:output", "api:companies:input", "api:products:output"})
      *
+     * @Assert\NotBlank()
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $name;
 
     /**
-     * @Groups({"api:companies:output"})
+     * @Groups({"api:companies:output", "api:companies:input"})
      *
      * @ORM\Column(type="text")
      */

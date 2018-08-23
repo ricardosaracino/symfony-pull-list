@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class SecurityControllerApi extends BaseControllerApi
 {
     /**
-     * @Route("/login", name="api_security_login", methods="POST")
+     * @Route("/login", methods="POST")
      *
      * @param Request $request
      * @return ApiJsonResponse
@@ -60,7 +60,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/logout", name="api_security_logout", methods="POST")
+     * @Route("/logout", methods="DELETE")
      *
      * @see \App\Security\LogoutSuccessHandler
      *
@@ -74,7 +74,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/user", name="api_security_user", methods="GET")
+     * @Route("/user", methods="GET")
      *
      * @param Request $request
      * @return ApiJsonResponse
@@ -101,7 +101,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/register", name="api_security_register", methods={"POST"})
+     * @Route("/register", methods={"POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -185,7 +185,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/verify_registration", name="api_security_verify_registration", methods={"OPTIONS", "POST"})
+     * @Route("/verify_registration", methods={"OPTIONS", "POST"})
      *
      * @param Request $request
      * @param UserRepository $userRepository
@@ -232,7 +232,7 @@ class SecurityControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/create_admin", name="api_security_create_admin", methods="GET")
+     * @Route("/create_admin", methods="GET")
      *
      * @param Request $request
      * @return ApiJsonResponse

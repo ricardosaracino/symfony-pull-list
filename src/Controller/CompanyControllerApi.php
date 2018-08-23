@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 class CompanyControllerApi extends BaseControllerApi
 {
     /**
-     * @Route("/", name="api_company", methods="GET")
+     * @Route("/", methods="GET")
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -45,7 +45,7 @@ class CompanyControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/", name="api_company", methods="POST")
+     * @Route("/", methods="POST")
      *
      * @param Request $request
      * @param SerializerInterface $serializer

@@ -64,7 +64,7 @@ class ProductControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/{id}", name="api_product", methods={"GET"})
+     * @Route("/{id}", methods={"GET"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
@@ -119,7 +119,7 @@ class ProductControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/", name="api_products", methods={"GET", "POST"})
+     * @Route("/", methods={"GET", "POST"})
      *
      * @param Request $request
      * @param SerializerInterface $serializer
