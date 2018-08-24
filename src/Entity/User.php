@@ -64,7 +64,6 @@ class User implements UserInterface, \Serializable
     private $registrationVerificationTokenExpiresAt;
 
     /**
-     * @Groups({"token"})
      * @ORM\Column(type="datetime", nullable=true)
      */
     private $registrationVerifiedAt;
@@ -80,6 +79,8 @@ class User implements UserInterface, \Serializable
     private $userPurchases;
 
     /**
+     * @Groups({"token"})
+     *
      * @var array
      */
     private $roles = ['ROLE_USER'];

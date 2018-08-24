@@ -8,12 +8,15 @@ use App\Response\ApiJsonResponse;
 use App\Response\ErrorJsonResponse;
 use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/companies")
+ *
+ * TODO Security("has_role('ROLE_USER')")
  */
 class CompanyControllerApi extends BaseControllerApi
 {
@@ -27,6 +30,7 @@ class CompanyControllerApi extends BaseControllerApi
     public function getCompanies(Request $request, CompanyRepository $companyRepository): ApiJsonResponse
     {
         try {
+            $request->getSession()->clear();
 
             $companies = $companyRepository->findAll();
 
