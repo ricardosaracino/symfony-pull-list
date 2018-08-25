@@ -11,12 +11,13 @@ use App\Response\SuccessJsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/api/companies")
  *
- * TODO Security("has_role('ROLE_USER')")
+ * @Security("has_role('ROLE_ADMIN')")
  */
 class CompanyControllerApi extends BaseControllerApi
 {
@@ -27,10 +28,9 @@ class CompanyControllerApi extends BaseControllerApi
      * @param CompanyRepository $companyRepository
      * @return ApiJsonResponse
      */
-    public function getCompanies(Request $request, CompanyRepository $companyRepository): ApiJsonResponse
+    public function getCompanies(Request $request, CompanyRepository $companyRepository, AuthorizationCheckerInterface $authChecker): ApiJsonResponse
     {
         try {
-            $request->getSession()->clear();
 
             $companies = $companyRepository->findAll();
 

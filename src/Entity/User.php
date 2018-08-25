@@ -83,7 +83,7 @@ class User implements UserInterface, \Serializable
      *
      * @var array
      */
-    private $roles = ['ROLE_USER'];
+    private $roles = ['ROLE_ADMIN'];
 
 
     public function __construct()
@@ -117,16 +117,15 @@ class User implements UserInterface, \Serializable
     public function serialize()
     {
         return serialize(array(
-            $this->id, $this->username, $this->password, // see section on salt below
-            // $this->salt,
+            $this->id, $this->username, $this->password, $this->salt,
         ));
     }
 
     public function unserialize($serialized)
     {
-        list ($this->id, $this->username, $this->password, // see section on salt below
-            // $this->salt
-            ) = unserialize($serialized, array('allowed_classes' => false));
+        list ($this->id, $this->username, $this->password, $this->salt)
+
+            = unserialize($serialized, array('allowed_classes' => false));
     }
 
     ##

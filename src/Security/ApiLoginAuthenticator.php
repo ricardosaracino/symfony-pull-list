@@ -69,6 +69,7 @@ class ApiLoginAuthenticator extends AbstractGuardAuthenticator
         return $userProvider->loadUserByUsername($username);
     }
 
+
     /**
      * {@inheritdoc}
      */
