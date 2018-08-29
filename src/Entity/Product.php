@@ -14,7 +14,7 @@ class Product
 {
     ## todo series ManyToOne? , by ManyToMany
 
-    use \App\Entity\Traits\Timestampable;
+    use Traits\Timestampable;
 
     /**
      * @Groups({"api:products:output"})

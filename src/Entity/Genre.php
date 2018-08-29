@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class Genre
 {
-    use \App\Entity\Traits\Timestampable;
+    use Traits\Timestampable;
 
     /**
      * @Groups({"api:products:output"})

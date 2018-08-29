@@ -25,6 +25,9 @@ security:
             logout:
                 path: /api/security/logout
                 success_handler: App\Security\LogoutSuccessHandler
+                invalidate_session: true
+                delete_cookies:
+                    PHPSESSID: { path: null, domain: null }
 
             access_denied_handler: App\Security\AccessDeniedHandler
 

@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class UserPurchase
 {
-    use \App\Entity\Traits\Timestampable;
+    use Traits\Timestampable;
 
     /**
      * @ORM\Id()

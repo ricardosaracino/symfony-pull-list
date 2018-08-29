@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Company
 {
-    use \App\Entity\Traits\Timestampable;
+    use Traits\Timestampable;
 
     /**
      * @Groups({"api:companies:output", "api:products:output"})
