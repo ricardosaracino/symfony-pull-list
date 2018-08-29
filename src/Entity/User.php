@@ -17,6 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class User implements UserInterface, \Serializable
 {
+    use \App\Entity\Traits\Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

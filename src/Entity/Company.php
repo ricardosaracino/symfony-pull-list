@@ -13,7 +13,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  */
 class Company
 {
-    #todo company to company_type (1-*)
+    use \App\Entity\Traits\Timestampable;
 
     /**
      * @Groups({"api:companies:output", "api:products:output"})
@@ -36,26 +36,12 @@ class Company
     /**
      * @Groups({"api:companies:output", "api:companies:input"})
      *
-     * @ORM\Column(type="text")
+     * @ORM\Column(type="text", nullable=true)
      */
     private $description;
 
     /**
-     * @Groups({"api:companies:output"})
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $createdAt;
-
-    /**
-     * @Groups({"api:companies:output"})
-     *
-     * @ORM\Column(type="datetime")
-     */
-    private $updatedAt;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="company")
+     * @ ORM\OneToMany(targetEntity="App\Entity\Product", mappedBy="company")
      */
     private $products;
 
@@ -93,34 +79,10 @@ class Company
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->createdAt;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
-    {
-        $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updatedAt;
-    }
-
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
-    {
-        $this->updatedAt = $updatedAt;
-
-        return $this;
-    }
-
     /**
      * @return Collection|Product[]
      */
-    public function getProducts(): Collection
+    public function getProducts()
     {
         return $this->products;
     }

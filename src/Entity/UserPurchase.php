@@ -10,6 +10,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  */
 class UserPurchase
 {
+    use \App\Entity\Traits\Timestampable;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -72,7 +74,7 @@ class UserPurchase
 
         return $this;
     }
-    
+
     public function getUser(): ?User
     {
         return $this->user;

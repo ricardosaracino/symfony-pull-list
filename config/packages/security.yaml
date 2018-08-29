@@ -32,10 +32,10 @@ security:
 
             guard:
                 authenticators:
-                    - App\Security\ApiLoginAuthenticator
+                - App\Security\ApiLoginAuthenticator
 
                 entry_point: App\Security\ApiLoginAuthenticator
 
     # Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/api/comics, roles: ROLE_ADMIN }
+    # - { path: ^/api/comics, roles: ROLE_ADMIN }

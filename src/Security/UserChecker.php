@@ -23,5 +23,9 @@ class UserChecker implements UserCheckerInterface
             # Calls \App\Security\ApiLoginAuthenticator::onAuthenticationFailure
             throw new AuthenticationException('User Not Active');
         }
+
+        if(!$user->getRegistrationVerifiedAt()) {
+            throw new AuthenticationException('User Not Verified');
+        }
     }
 }

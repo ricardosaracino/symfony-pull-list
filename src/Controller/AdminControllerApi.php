@@ -11,30 +11,29 @@ use App\Response\SuccessJsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
- * @Route("/api/companies")
+ * @Route("/api/admin")
  *
  * @Security("has_role('ROLE_ADMIN')")
  */
-class CompanyControllerApi extends BaseControllerApi
+class AdminControllerApi extends BaseControllerApi
 {
     /**
-     * @Route("/", methods="GET")
+     * @Route("/companies", methods="GET")
      *
      * @param Request $request
      * @param CompanyRepository $companyRepository
      * @return ApiJsonResponse
      */
-    public function getCompanies(Request $request, CompanyRepository $companyRepository, AuthorizationCheckerInterface $authChecker): ApiJsonResponse
+    public function getCompanies(Request $request, CompanyRepository $companyRepository): ApiJsonResponse
     {
         try {
 
             $companies = $companyRepository->findAll();
 
-            $results = $this->serializer->normalize($companies, null, ['groups' => ['api:companies:output']]);
+            $results = $this->serializer->normalize($companies, null, ['groups' => ['api:companies:output', 'timestampable']]);
 
             return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => count($results), 'count' => count($results), 'results' => $results]);
 
@@ -47,7 +46,7 @@ class CompanyControllerApi extends BaseControllerApi
     }
 
     /**
-     * @Route("/", methods="POST")
+     * @Route("/companies", methods="POST")
      *
      * @param Request $request
      * @param ValidatorInterface $validator

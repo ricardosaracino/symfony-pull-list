@@ -8,13 +8,13 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class BaseControllerApi extends Controller
 {
-	protected $logger;
-	protected $serializer;
+    protected $logger;
+    protected $serializer;
 
-	public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
-	{
-		$this->logger = $logger;
+    public function __construct(LoggerInterface $logger, SerializerInterface $serializer)
+    {
+        $this->logger = $logger;
 
-		$this->serializer = $serializer;
-	}
+        $this->serializer = $serializer;
+    }
 }
