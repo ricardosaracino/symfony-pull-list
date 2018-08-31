@@ -10,6 +10,7 @@ use App\Response\FailureJsonResponse;
 use App\Response\SuccessJsonResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
@@ -36,6 +37,36 @@ class AdminControllerApi extends BaseControllerApi
             $results = $this->serializer->normalize($companies, null, ['groups' => ['api:companies:output', 'timestampable']]);
 
             return new SuccessJsonResponse(['offset' => 0, 'limit' => 0, 'total' => count($results), 'count' => count($results), 'results' => $results]);
+
+        } catch (\Exception $exception) {
+
+            $this->logger->error($exception->getMessage(), ['route_name' => $request->getPathInfo()]);
+
+            return new ErrorJsonResponse('Error in ' . $request->getPathInfo());
+        }
+    }
+
+
+    /**
+     * @Route("/companies/{id}", methods="GET")
+     *
+     * @param Request $request
+     * @param CompanyRepository $companyRepository
+     * @return ApiJsonResponse
+     */
+    public function getCompany(Request $request, CompanyRepository $companyRepository): ApiJsonResponse
+    {
+        try {
+
+            $company = $companyRepository->find($request->get('id'));
+
+            $results = $this->serializer->normalize($company, null,
+
+                ['groups' => ['api:companies:output', 'timestampable']]);
+
+            return new SuccessJsonResponse(['offset' => 0, 'limit' => 1,
+
+                'total' => 1, 'count' => 1, 'results' => [$results]]);
 
         } catch (\Exception $exception) {
 
@@ -85,7 +116,7 @@ class AdminControllerApi extends BaseControllerApi
             $entityManager->persist($company);
             $entityManager->flush();
 
-            return new SuccessJsonResponse();
+            return new SuccessJsonResponse(null, Response::HTTP_CREATED);
 
         } catch (\Exception $exception) {
 

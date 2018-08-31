@@ -163,7 +163,7 @@ class SecurityControllerApi extends BaseControllerApi
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return new SuccessJsonResponse();
+            return new SuccessJsonResponse(null, Response::HTTP_CREATED);
 
         } catch (\Exception $exception) {
 

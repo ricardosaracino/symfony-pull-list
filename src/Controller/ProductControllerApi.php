@@ -73,9 +73,11 @@ class ProductControllerApi extends BaseControllerApi
     {
         try {
 
-            $this->get('cache.app')->deleteItem(self::CACHE_PREFIX . $request->get('id'));
+            $id = $request->get('id');
 
-            $cachedResults = $this->get('cache.app')->getItem(self::CACHE_PREFIX . $request->get('id'));
+            $this->get('cache.app')->deleteItem(self::CACHE_PREFIX . $id);
+
+            $cachedResults = $this->get('cache.app')->getItem(self::CACHE_PREFIX . $id);
 
             if ($cachedResults->isHit()) {
                 $results = $cachedResults->get();
@@ -83,11 +85,7 @@ class ProductControllerApi extends BaseControllerApi
 
                 $criteria = Criteria::create();
 
-                if ($id = $request->get('id')) {
-                    $criteria->where(Criteria::expr()->eq('id', $id));
-                } else {
-                    $criteria->where(Criteria::expr()->eq('id', 0));
-                }
+                $criteria->where(Criteria::expr()->eq('id', $id));
 
                 $collection = $repository->matching($criteria);
 
@@ -103,9 +101,9 @@ class ProductControllerApi extends BaseControllerApi
             ## add un-cached results
             $this->addUserPurchasesResults($results, $purchaseRepository);
 
-            return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
+            return new SuccessJsonResponse(['offset' => 0, 'limit' => 1,
 
-                'total' => count($results), 'count' => count($results), 'results' => $results]);
+                'total' => 1, 'count' => 1, 'results' => $results]);
 
         } catch (\Exception $exception) {
 
@@ -131,17 +129,23 @@ class ProductControllerApi extends BaseControllerApi
 
             $cachedResults = $this->get('cache.app')->getItem(self::CACHE_PREFIX . base64_encode(md5($request->getQueryString())));
 
+            $offset = (int)$request->get('offset');
+
+            $limit = (int)$request->get('limit');
+
+
             if (false || $cachedResults->isHit()) {
                 $results = $cachedResults->get();
             } else {
 
                 $criteria = Criteria::create();
 
-                if ($offset = $request->get('offset')) {
+
+                if ($offset) {
                     $criteria->setFirstResult($offset);
                 }
 
-                if ($limit = $request->get('limit')) {
+                if ($limit) {
                     $criteria->setMaxResults($limit);
                 }
 
@@ -176,7 +180,7 @@ class ProductControllerApi extends BaseControllerApi
             ## add un-cached results
             $this->addUserPurchasesResults($results, $purchaseRepository);
 
-            return new SuccessJsonResponse(['offset' => count($results), 'limit' => count($results),
+            return new SuccessJsonResponse(['offset' => $offset, 'limit' => $limit,
 
                 'total' => count($results), 'count' => count($results), 'results' => $results]);
 
